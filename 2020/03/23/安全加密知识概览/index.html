@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com" />
+  
+  
+  
+  <title>安全知识概览 | Leven</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="加密," />
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  
+<script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Leven</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a 
+              href="/"
+              target="_self"
+            >
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a 
+              href="/archives/"
+              target="_self"
+            >
+              归档
+            </a>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>安全知识概览</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2020-03-23
+    </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <p>安全是日常开发中都会接触的东西，例如本地ssh远程登录服务器，git提交代码，利用https通信等。下面我会将自己的理解由浅至深的梳理一下。</p>
+<h3 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h3><p>当我们通过互联网交互数据的时候，数据通过网络设备到达另一方。为了使数据安全完整的达到对方，安全技术是不可或缺的。这涉及到四个基本问题。窃听，欺骗，伪造，还有否认。我们可以使用加密技术来防止窃听，利用数字签名来防止欺骗，同时防止伪造我们也可以使用数字签名或消息认证码。另外否认我们也可以使用数字签名。数字证书的的技术可以解决签名当中公钥持有人安全性的问题。</p>
+<h3 id="加密入门"><a href="#加密入门" class="headerlink" title="加密入门"></a>加密入门</h3><p>所有数据都是由二进制数字形式进行管理的，密钥也是一段随机的二进制随机数。加密就是用密钥对元数据进行二进制转换，使加密后的数据无法被正确读取。必须解密之后才能还原原来的二进制数据。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 元数据</span><br><span class="line">DataA &#x3D; 0101</span><br><span class="line">&#x2F;&#x2F; 密钥</span><br><span class="line">Key &#x3D; 1100</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 将元数据与密钥进行异或操作 XOR</span><br><span class="line">0101 XOR 1100 &#x3D; 1001 &#x2F;&#x2F; 加密操作</span><br><span class="line">1001 XOR 1100 &#x3D; 0101 &#x2F;&#x2F; 解密操作</span><br></pre></td></tr></table></figure>
+<p>上述对称加密的基础原理</p>
+<h3 id="哈希函数"><a href="#哈希函数" class="headerlink" title="哈希函数"></a>哈希函数</h3><p>哈希函数是将给定的数据转化为固定长度的不规则值的函数，并且不可以由不规则值得到元数据。常用的hash算法由MD5，SHA。若不同的输入值hash之后是相同的输出值，则代表由hash碰撞。解决这个问题一般通过链地址法或者开放地址法解决。实际应用中hash算法用在消息摘要，数字签名，负载均衡，数据校验上。</p>
+<h3 id="共有密钥加密"><a href="#共有密钥加密" class="headerlink" title="共有密钥加密"></a>共有密钥加密</h3><p>共有密钥加密也指对成加密，是使用同一个密钥进行加密解密的算法。常见的共有加密算法由凯撒密码(Caesar,cipher)，AES(Advanced Encryption Standard)，DES(Data Encryption Standard)，一次性垫子(OTP,One-Time pad)。共有密钥加密在网络传输中存在密钥安全交付的问题。因此一般使用公开密钥加密(非对称加密)。</p>
+<h3 id="公开密钥加密"><a href="#公开密钥加密" class="headerlink" title="公开密钥加密"></a>公开密钥加密</h3><p>公开密钥加密也指非对成加密，是一种使用不同密钥进行加密和解密的方法。用于加密的的密钥称为公开密钥，用于解密的密钥称为解密。非对称加密比对称加密耗时更多。常见的非对成加密算法有RSA，ECC(椭圆曲线密码),ESA。RSA的原理是利用大数的质因数分解问题来实现的。公开密钥加密在互联网传输使用中存在公开密钥交付的问题。有可能在中途被第三方监听并替换。当对方收到公开密钥的时候，有可能是中间人伪造的公开密钥。这就是中间人攻击，解决这个问题可以使用数字证书的技术。</p>
+<h3 id="混合加密"><a href="#混合加密" class="headerlink" title="混合加密"></a>混合加密</h3><p>因为公开密钥加密存在加密性能低下的问题，因此一般都是利用公开密钥来传输共有加密的密钥，后续使用共有密钥加密来进行安全通信。https协议的就是使用这个方法进行通信。</p>
+<h3 id="消息鉴别码"><a href="#消息鉴别码" class="headerlink" title="消息鉴别码"></a>消息鉴别码</h3><p>消息鉴别码用来保证消息传输的完整性和可靠性。互联网中在传输加密后的数据过程中，可能被第三者获取到，并加以修改。第三方虽然不能获取到解密后的数据，但是可以针对加密后的数据进行删除和增加数据。如果处理后的数据依然可以被正常解密出来的话，接收方不知道这个被修改过，能够被正确解密出来，接收方只能照常使用这个数据。因此在发送方发送加密数据的时候可以将密文和密钥进行处理生成一个随机值，这个值就是消息鉴别码。将消息鉴别码和密文一起发送给接收方。接收方接收到数据后也会将自己的密钥和密文用同种方式处理生成消息鉴别码，如果与收到的消息鉴别码一致，则代表内容没有被修改过。但是消息鉴别码无法解决否认的问题。发送方可以否认自己曾发送过该数据。这个问题可以利用数字签名的方法解决。</p>
+<h3 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h3><p>在公开密钥加密的过程中，私钥加密的信息，只有公钥可以解密。公钥加密的信息，只有私钥可以解密。所谓的公钥私钥本质没有啥不同，主要是一个是公开的，一个不是公开的。数字签名要求唯一性，因此可以采用私钥加密的方法，生成数字签名，在实际过程中。A方发送数据给B方，首先会讲A的公钥发送给B方，A方先hash传输数据，然后将hash后的值用私钥加密生成签名。B方收到签名，会解密获取到hash值，并与本地将收到的数据hash对比，如果一致，则代表数据安全且完整。并且A方无法否认此数据是他发送的。因为只有A方自己拥有生成签名的私钥。但是这个过程其实还是存在一个根本性的问题，公钥如何安全交付？公钥有可能被第三方窃取并替换发送给B方，然后所有的数据都会经过第三方，然后第三方会将伪造的数据和公钥给B方。</p>
+<h3 id="迪菲赫尔曼密钥交换算法"><a href="#迪菲赫尔曼密钥交换算法" class="headerlink" title="迪菲赫尔曼密钥交换算法"></a>迪菲赫尔曼密钥交换算法</h3><p>这是一种制造密钥的算法，而不是加密算法。流程如下图：<br><img src="/images/20200323065502.png" alt=""><br>我们可以通过P和S得到PS，但是无法通过PS和S得到P。<br>因此在实际生成密钥的时候会是下面这个流程<br><img src="/images/20200323071106.png" alt=""><br>在网络中实际传输的有P，PSA，PSB，但是无论怎样都无法得到最终的密钥PSASB。</p>
+<h3 id="数字证书"><a href="#数字证书" class="headerlink" title="数字证书"></a>数字证书</h3><p>在证明公钥的有效性的时候会使用到数字证书技术，数字证书有CA机构颁发。认证机构有自己的公开密钥和私有密钥。在申请数字证书的时候需要将自己的个人资料，包括电子邮件，和公钥等发送给认证机构CA。CA会使用它的私钥加密这些信息，并创建数字签名，最后生成一个文件。这个文件就是数字证书。后续发送方将这个证书发送给接收方。接受方利用CA的公开密钥解密数据，并验证签名。一切正确的话，就可以得到正确的发送方的公开密钥了。有数字签名的保证，可以确定这个证书不会第三方篡改。其实CA机构也是分等级。大的CA机构给小的CA机构颁发证书，最终会有一个顶级的CA机构给自己颁发证书。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>以上就是对安全基础知识的简单总结，实际开发过程中我们几乎每天都会接触到这些。不了解之前，总觉得挺神秘，花时间研究下来其实都是建立在这些基础知识之上的。</p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : GODBMW <br/>
+        
+        原文链接 : <a href="">https://leven.top/2020/03/23/%E5%AE%89%E5%85%A8%E5%8A%A0%E5%AF%86%E7%9F%A5%E8%AF%86%E6%A6%82%E8%A7%88/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share"
+  style="margin-top: -2rem"
+  data-wechat-qrcode-title="<p>微信扫一扫</p>"
+  data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>"
+   data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter" 
+  
+>
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/%E5%8A%A0%E5%AF%86/">
+              #加密
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2020/03/20/Promise%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/" target="_self">Promise原理与实现</a>
+      </div>
+    
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw" target="_blank" rel="noopener">BMW</a> | Made With 💗 | Powered by <a href="https://godbmw.com/" target="_blank" rel="noopener">GodBMW</a>
+    <br>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 1, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

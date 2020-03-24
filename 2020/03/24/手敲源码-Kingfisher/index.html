@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com" />
+  
+  
+  
+  <title>手敲源码-Kingfisher | Leven</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="源码," />
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  
+<script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Leven</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a 
+              href="/"
+              target="_self"
+            >
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a 
+              href="/archives/"
+              target="_self"
+            >
+              归档
+            </a>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>手敲源码-Kingfisher</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2020-03-24
+    </span>
+    
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="Kingfisher解析"><a href="#Kingfisher解析" class="headerlink" title="Kingfisher解析"></a>Kingfisher解析</h1><h2 id="Cache"><a href="#Cache" class="headerlink" title="Cache"></a>Cache</h2><h3 id="1-Storage-swift"><a href="#1-Storage-swift" class="headerlink" title="1. Storage.swift"></a>1. Storage.swift</h3><p><code>TimeConstants</code> <code>struct</code> 定义了秒分时天<br>    <code>StorageExpiration</code> <code>enum</code>类型，用来定义缓存过期时间，<br>    <code>ExpirationExtending</code> <code>enum</code>类型，用来定义对缓存元素的延期。一般获取到缓存元素后，会对该元素的过期时间进行延期<br>    <code>CacheCostCalcuable</code> <code>Protocol</code> 类型。又来定义元素所占的缓存大小<br>    <code>DataTransformable</code> <code>Protocol</code>,用来定义<br>    对象转为Data，以及Data转为对象的接口定义。</p>
+<h3 id="2-MemoryStorage-swift"><a href="#2-MemoryStorage-swift" class="headerlink" title="2. MemoryStorage.swift"></a>2. MemoryStorage.swift</h3><p><code>MemoryStorage</code>定义为<code>enum</code>类型的原因是因为<code>This is a namespace for the memory storage types</code>,内部有<code>Backend&lt;T:CacheCostCalcuable&gt;</code>类型。内部缓存对象使用<code>NSCache</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">let storage &#x3D; NSCache&lt;NSString, StorageObject&lt;T&gt;&gt;()</span><br></pre></td></tr></table></figure>
+<p>缓存的配置信息由定义在<code>MemoryStorage</code> extension里定义的内部struct <code>Config</code>定义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">extension MemoryStorage &#123;</span><br><span class="line">	var totalCostLimit: Int</span><br><span class="line">	var countLimit: Int &#x3D; .max</span><br><span class="line">	var expiration: StorageExpiration &#x3D; .second(300)</span><br><span class="line">	var cleanInterval: TimeIOnterval &#x3D; 120;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>内存缓存默认300秒后过期，默认120秒清理一次过期缓存。真正缓存在Cache的元素是有StorageObject包裹。由于NSCache无法知道具体缓存的keys.因此Backend内会有<code>var keys = Set&lt;String&gt;()</code> 来记录缓存的Keys<br>缓存的的接口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">func store(value: T, forKey key: String, expiration: StorageExpiration? &#x3D; nil) throws</span><br></pre></td></tr></table></figure>
+<p>首先会通过NSLock加锁如果expiration.isExpired 为true，会直接放弃缓存。将value封装为<code>StorageObject</code>,然后缓存</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">storage.setObject(object, forKey: key as NSString, cost: value.cacheCost)</span><br><span class="line">	keys.insert(key)</span><br></pre></td></tr></table></figure>
+<p>获取的接口：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">func value(forKey key: String, extendingExpiration: ExpirationExtending &#x3D; .cacheTime) -&gt; T?</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>objectForKey</code>获取到元素。如果<code>expired</code> 会返回nil。如果没有过期。则会延长过期时间。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">object.extendExpiration(extendingExpiration)</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-DiskStorage-swift"><a href="#3-DiskStorage-swift" class="headerlink" title="3. DiskStorage.swift"></a>3. DiskStorage.swift</h3><p>和<code>MemoryStorage.swift</code>类似。不同的是缓存的对象必须遵循 <code>DataTransformable</code>协议</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class Backend&lt;T: DataTransformable&gt;</span><br></pre></td></tr></table></figure>
+
+<p>另外获取到磁盘的对象后，对缓存对象的过期时间更高操作放在一个穿行队列异步执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">do &#123;</span><br><span class="line">    let data &#x3D; try Data(contentsOf: fileURL)</span><br><span class="line">    let obj &#x3D; try T.fromData(data)</span><br><span class="line">    metaChangingQueue.async &#123;</span><br><span class="line">        meta.extendExpiration(with: fileManager)</span><br><span class="line">    &#125;</span><br><span class="line">    return obj</span><br><span class="line">&#125; catch &#123;</span><br><span class="line">    throw KingfisherError.cacheError(reason: .cannotLoadDataFromDisk(url: fileURL, error: error))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>缓存的接口:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">func store(value: T, forKey key: String,expiration: StorageExpiration? &#x3D; nil)</span><br></pre></td></tr></table></figure>
+<p>如果<code>expiration.expired</code>为true，则直接return，否则将 value转为Data，由key获取到fileURL，并且配置到file attribute。然后创建文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">let attributes:[FileAttributeKey : Any] &#x3D; [</span><br><span class="line">    &#x2F;&#x2F; The last access date</span><br><span class="line">    .creationDate: now.filterAttributeDate,</span><br><span class="line">    &#x2F;&#x2F; The estimated expiration date.</span><br><span class="line">    .modificationDate: expiration.estimatedExpirationSinceNow.filterAttributeDate</span><br><span class="line">]</span><br><span class="line">config.fileManager.createFile(atPath: fileURL.path, contents: data, attributes: attributes)</span><br></pre></td></tr></table></figure>
+
+<p>获取的接口:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">func value(forKey key: String, referenceDate: Date, actuallyLoad: Bool) throws -&gt; T?</span><br></pre></td></tr></table></figure>
+<p>由key获取到fileURL，然后封装为 FileMeta对象。这个对象封装了文件attribute的信息，如果对象过期，则丢弃，否则获取到Data。</p>
+<h3 id="4-CacheSerializer-swift"><a href="#4-CacheSerializer-swift" class="headerlink" title="4. CacheSerializer.swift"></a>4. CacheSerializer.swift</h3><p>这个文件主要定义了各类image类型与data的互转接口，实际上的序列化操作在KingfisherWrapper的extension里</p>
+<h3 id="5-ImageCache-swift"><a href="#5-ImageCache-swift" class="headerlink" title="5. ImageCache.swift"></a>5. ImageCache.swift</h3><p>缓存的主要管理类，包含了硬盘和内存缓存，和一个串行队列缓存的结果通过<code>ImageCacheResult</code>返回</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public enum ImageCacheResult &#123;</span><br><span class="line">    case disk(Image)</span><br><span class="line">    case memory(Image)</span><br><span class="line">    case none</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>缓存的时候先缓存在memory中，后续会选择默认存在硬盘中，存硬盘的操作在异步串行队列中进行。<br>序列化，过期时间，回调的队列都在<code>KingfisherParsedOptionsInfo</code>这个类似小叮当的对象中。<br>当App进入到后台的，会异步开启一个backgroundTask</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var backgroundTask: UIBackgroundTaskIdentifier!</span><br><span class="line">backgroundTask &#x3D; sharedApplication.beginBackgroundTask(expirationHandler: &#123;</span><br><span class="line">    endBackgroundTask(&amp;backgroundTask!)</span><br><span class="line">&#125;)</span><br><span class="line">cleanExpiredDiskCache &#123;</span><br><span class="line">    endBackgroundTask(&amp;backgroundTask)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>背后会移除过期的缓存，以及超出缓存限制的硬盘缓存。这里会先获取所有硬盘缓存对象的URL，compactMap为FileMeta对象，并且根据最后获取日期排序。然后遍历这些对象，对每个fileSize相加，后续对超出sizeLimit的Filemeta对象进行移除操作。</p>
+<h2 id="Networking"><a href="#Networking" class="headerlink" title="Networking"></a>Networking</h2><h3 id="1-ImageDownloader-swift"><a href="#1-ImageDownloader-swift" class="headerlink" title="1.ImageDownloader.swift"></a>1.ImageDownloader.swift</h3><p>这是主要的核心文件！<br>先说下Delegate文件，这个文件中Delegate类型主要是用来有效防止循环引用的。如果一个block里需要外层的self，可以将block封装成Delegate对象。Delegate自动弱持有了self，并在block的方法实现里将self返回。而不需要在外层手动weak self。下面有很好的实践</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">let onCompleted &#x3D; completionHandler.map &#123;</span><br><span class="line">    block -&gt; Delegate&lt;Result&lt;ImageLoadingResult, KingfisherError&gt;, Void&gt; in</span><br><span class="line">    let delegate &#x3D; Delegate&lt;Result&lt;ImageLoadingResult, KingfisherError&gt;, Void&gt;()</span><br><span class="line">        delegate.delegate(on: self) &#123; (self, callback) in</span><br><span class="line">            block(callback)</span><br><span class="line">        &#125;</span><br><span class="line">    return delegate</span><br><span class="line">                        </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sessionTask.onTaskDone.delegate(on: self) &#123; (self, done) in</span><br><span class="line">    let (result, callbacks) &#x3D; done</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每个请求都会生成一个callback对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let callbak &#x3D; SessionDataTask.TaskCallback(</span><br><span class="line">    onCompleted: onCompleted, options: options</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>但是相同url的请求只会生成一个<code>DownloadTask</code>。这个请求的callback保存在<code>sessionDelegate</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">let downloadTask: DownloadTask</span><br><span class="line">    if let existingTask &#x3D; sessionDelegate.task(for: url) &#123;</span><br><span class="line">        downloadTask &#x3D; sessionDelegate.append(existingTask, url: url, callback: callbak)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        let sessionDataTask &#x3D; session.dataTask(with: request)</span><br><span class="line">        sessionDataTask.priority &#x3D; options.downloadPriority</span><br><span class="line">        downloadTask &#x3D; sessionDelegate.add(sessionDataTask, url: url, callback: callbak)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>sessionDelegate</code>将新生成<code>URLSessionDataTask</code>封装为为<code>DownloadTask</code>，并且以url为key保存在<code>sessionDelegate</code>的tasks里，sessionDelegate遵循了URLSessionDelegate协议，在协议方法里根据 url获取到相应的task。</p>
+<p>这中间的callback，result，completionBlcok以及options的传输均封装在了<code>SessionDataTask.TaskCallback</code>中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">struct TaskCallback &#123;</span><br><span class="line">        let onCompleted: Delegate&lt;Result&lt;ImageLoadingResult, KingfisherError&gt;, Void&gt;?</span><br><span class="line">        let options: KingfisherParsedOptionsInfo</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>同一url请求公用一个<code>SessionDataTask</code> 回调以数组的形式保存在task中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private var callbackStore &#x3D; [CancelToken: TaskCallback]()</span><br></pre></td></tr></table></figure>
+
+<h2 id="Kingfisher"><a href="#Kingfisher" class="headerlink" title="Kingfisher"></a>Kingfisher</h2><h3 id="1-Kingfisher"><a href="#1-Kingfisher" class="headerlink" title="1. Kingfisher"></a>1. Kingfisher</h3><p>内部的KingfisherCompatibleValue和KingfisherCompatible起的是一个namespace的作用。例如给String拓展一个方法，如果extension string的话，所有的String都可以string.method，但是通过如下方法，只能string.kf.method调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">extension String: KingfisherCompatibleValue &#123; &#125;</span><br><span class="line">extension KingfisherWrapper where Base &#x3D;&#x3D; String &#123;</span><br><span class="line">    var md5: String &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-KingfisherOptionsInfo"><a href="#2-KingfisherOptionsInfo" class="headerlink" title="2. KingfisherOptionsInfo"></a>2. KingfisherOptionsInfo</h3><p>这是一个比较重要的类型。框架内部的回调，参数传递，其实都借用了这个类。</p>
+<h2 id="重要文件"><a href="#重要文件" class="headerlink" title="重要文件"></a>重要文件</h2><p>我看来比较有意思的几个文件，Delegate，Kingfisher， Downloader，SessionDelegate，KingfisherOptionsInfo。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>当Kingfisher从本地或者server加载图片的时候，首先会将源封装为Resource或者Provider。如果是server的图片，首先会判断是否在MemoryCache中，如果在并且没有过期，则直接返回，并且更新过期时间。如果没有在MemoryCache中，则判断是否在DiskCache中，如果有并且没有过期，则返回同时塞到MemoryCache中。如果缓存中都没有，则会生成Request，并且根据options里的modifier，决定是否modifier request。将complete closure封装为Delegate对象， 弱持有Downloader。将options和completion delegate。封装为SessionDataTask.TaskCallBack对象callback，sessionDelegate根据url判断是否已经有DownloadTask,如果有，则直接将callback添加到downloadTask的callbackStore中。如果没有DownloadTask，则由session根据request生成URLSessionDataTask，再由sessionDelegate根据URLSessionDataTask，和callback生成DownloadTask，sessionDelegate持有DownloadTask，以url为key。然后downloadTask.resume 开启下载。<br>URLSessionDelegate的回调在SessionDelegate中，在回调方法里，会根据url获取到对应的downloadTask。downloadTask持有options，可以进行progress，redirectHandler回调。网络下载图片成功后，会利用processor根据options对图片进行处理缩小，反转等处理。处理完毕会在KingfisherManager层收到回调，对图片进行缓存之后，返回给业务层。</p>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Leven <br/>
+        
+        原文链接 : <a href="">https://leven.top/2020/03/24/%E6%89%8B%E6%95%B2%E6%BA%90%E7%A0%81-Kingfisher/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share"
+  style="margin-top: -2rem"
+  data-wechat-qrcode-title="<p>微信扫一扫</p>"
+  data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>"
+   data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter" 
+  
+>
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/%E6%BA%90%E7%A0%81/">
+              #源码
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2020/03/23/%E5%AE%89%E5%85%A8%E5%8A%A0%E5%AF%86%E7%9F%A5%E8%AF%86%E6%A6%82%E8%A7%88/" target="_self">安全知识概览</a>
+      </div>
+    
+    
+  </nav>
+
+   
+
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw" target="_blank" rel="noopener">BMW</a> | Made With 💗 | Powered by <a href="https://godbmw.com/" target="_blank" rel="noopener">GodBMW</a>
+    <br>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 1, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

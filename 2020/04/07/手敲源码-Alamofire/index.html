@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com" />
+  
+  
+  
+  <title>手敲源码-Alamofire | Leven</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="源码," />
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  
+<script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">Leven</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a 
+              href="/"
+              target="_self"
+            >
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a 
+              href="/archives/"
+              target="_self"
+            >
+              归档
+            </a>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>手敲源码-Alamofire</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2020-04-07
+    </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="手敲源码-Alamofire"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="Alamofire解析"><a href="#Alamofire解析" class="headerlink" title="Alamofire解析"></a>Alamofire解析</h1><p>这里只记录下核心的几个文件和简要的架构理念</p>
+<h2 id="Alamofire-swift"><a href="#Alamofire-swift" class="headerlink" title="Alamofire.swift"></a>Alamofire.swift</h2><p>首先定义了一些基本的protocol <code>URLConvertible</code>和<code>URLRequestConvertible</code>, 很好的实践了接口隔离原则。在底层只使用这些协议对象。而不用管具体是那种class类型的实例。Alamofire还定义一些主要的网络Api例如 <code>request()</code>,<code>download()</code>等主要的实现转交给了<code>SessionManager</code></p>
+<h2 id="SessionManager-swift"><a href="#SessionManager-swift" class="headerlink" title="SessionManager.swift"></a>SessionManager.swift</h2><p><code>SessionManager</code>主要负责了统筹各类进行网络请求的逻辑，包括失败retry。<code>SessionManager</code>利用default进行单例的实例化，默认会构造一个default headers，delegate还有session。delegate是<code>SessionDelegate</code> 会负责所有请求task的回调派发。另外还有<code>open var adapter: RequestAdapter?</code> 属性，负责对外暴露修改每个requst的接口。<code>open var retrier: RequestRetrier?</code> 负责失败重复请求的逻辑。这两个属性默认为nil。还有一个属性<code>queue</code>,所有生成task的任务均在这个串行队列。为什么不默认利用多线程并行的生成task呢？看过滴滴大佬戴威大佬的书，多线程具有不可控性。例如线程的切换耗性能，死锁等，所以一般来说要尽量少用多线程并行(特殊例子除外，例外多线程解码)。<br></p>
+<h3 id="请求流程"><a href="#请求流程" class="headerlink" title="请求流程"></a>请求流程</h3><p>这里用download来说下网络请求的流程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">do &#123;</span><br><span class="line">    &#x2F;&#x2F; 生成request</span><br><span class="line">    let urlRequest &#x3D; try URLRequest(url: url, method: method, headers: headers)</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 利用URLEncoding.default对reqeust进行修改赋值，例如根据parameters设置body或者query。解析的parameters会利用递归操作，解析出内部的value，并对value做&#96;addingPercentEncoding&#96;操作</span><br><span class="line">    let encodedURLRequest &#x3D; try encoding.encode(urlRequest, with: parameters)</span><br><span class="line"></span><br><span class="line">    return download(encodedURLRequest, to: destination)</span><br><span class="line">&#125; catch &#123;</span><br><span class="line">    return download(nil, to: destination, failedWith: error)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>进一步转发之后，最终接受的是一个<code>DownloadRequest.Downloadable</code>和<code>DownloadRequest.DownloadFileDestination</code>对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 生成URLSessionTask</span><br><span class="line">let task &#x3D; try downloadable.task(session: session, adapter: adapter, queue: queue)</span><br><span class="line">&#x2F;&#x2F; 将URLSessionTask已经其他信息封装成DownloadRequest</span><br><span class="line">let download &#x3D; DownloadRequest(session: session, requestTask: .download(downloadable, task))</span><br><span class="line"></span><br><span class="line">download.downloadDelegate.destination &#x3D; destination</span><br><span class="line">&#x2F;&#x2F; 将task和download队形，在delegate接收到数据的时候回一句task.taskIdentifier获取到对应的download，并将结果转交给download.delegate.</span><br><span class="line">delegate[task] &#x3D; download</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 默认历史立即请求</span><br><span class="line">if startRequestsImmediately &#123; download.resume() &#125;</span><br><span class="line"></span><br><span class="line">return download</span><br></pre></td></tr></table></figure>
+
+<h3 id="失败处理"><a href="#失败处理" class="headerlink" title="失败处理"></a>失败处理</h3><p>失败的请求由delegate抛到manager中，返回的参数是根据task.taskIdentifier获取到的request类型，这里request类型是Alamofire封装的Request类型，持有请求的原始信息。根据request.originalTask 重新生成了URLSessionTask，增加request的retryCount，并重置<code>delegate[originalTask] = request</code></p>
+<h1 id="Result-swift-TaskDelegate-swift"><a href="#Result-swift-TaskDelegate-swift" class="headerlink" title="Result.swift, TaskDelegate.swift"></a>Result.swift, TaskDelegate.swift</h1><p>这个文件定义了Request类型，实际业务中用到的是它的四个子类，<code>DataRequest</code>,<code>DownloadRequest</code>,<code>UploadRequest</code>,<code>StreamRequest</code>。Request类型可以看做是和每个Api请求意义对应的。处理Api数据回到的是Request的deleagte: TaskDelegate类型。在实例化Request的时候根据带参数的enum类型，来生成对应的Request子类型和TaskDelegate子类型。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">switch requestTask &#123;</span><br><span class="line">case .data(let originalTask, let task):</span><br><span class="line">    taskDelegate &#x3D; DataTaskDelegate(task: task)</span><br><span class="line">    self.originalTask &#x3D; originalTask</span><br><span class="line">case .download(let originalTask, let task):</span><br><span class="line">    taskDelegate &#x3D; DownloadTaskDelegate(task: task)</span><br><span class="line">    self.originalTask &#x3D; originalTask</span><br><span class="line">case .upload(let originalTask, let task):</span><br><span class="line">    taskDelegate &#x3D; UploadTaskDelegate(task: task)</span><br><span class="line">    self.originalTask &#x3D; originalTask</span><br><span class="line">case .stream(let originalTask, let task):</span><br><span class="line">    taskDelegate &#x3D; TaskDelegate(task: task)</span><br><span class="line">    self.originalTask &#x3D; originalTask</span><br></pre></td></tr></table></figure>
+<p>TaskDelegate类型中有个很不起眼的属性<code>queue</code>,这个队列是串行，默认是挂起的。只有在request 完成的时候才<code>queue.isSuspended = false</code>，这里就保证了后续塞进这个队列的操作都是在数据请求完成之后才执行的。例如通过返回的Request获取response</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">delegate.queue.addOperation &#123;</span><br><span class="line">    (queue ?? DispatchQueue.main).async &#123;</span><br><span class="line">        var downloadResponse &#x3D; DefaultDownloadResponse(</span><br><span class="line">            request: self.request,</span><br><span class="line">            response: self.response,</span><br><span class="line">            temporaryURL: self.downloadDelegate.temporaryURL,</span><br><span class="line">            destinationURL: self.downloadDelegate.destinationURL,</span><br><span class="line">            resumeData: self.downloadDelegate.resumeData,</span><br><span class="line">            error: self.downloadDelegate.error,</span><br><span class="line">            timeline: self.timeline</span><br><span class="line">            )</span><br><span class="line">        downloadResponse.add(self.delegate.metrics)</span><br><span class="line">        completionHandler(downloadResponse)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>这里与我认识的常规逻辑不同，一般来说对于异步的回调，我们会传一个completeBlock进去，等数据获取完毕之后框架内部主动执行completeBlock(result),例如Kingfisher的逻辑，但是Alamofire比较新奇，利用了串行队列的isSuspended的属性实现了一种异步转同步的效果。伪代码如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">request.queue.isSuspended &#x3D; true</span><br><span class="line">request.callApi &#123; res in</span><br><span class="line">    request.response &#x3D; res</span><br><span class="line">    request.queue.isSuspended &#x3D; false</span><br><span class="line">&#125;</span><br><span class="line">request.queue.async &#123; print(request.respnse)&#125;</span><br></pre></td></tr></table></figure>
+<p>非常棒的技巧和思想。避免了繁杂的completeBlock传输过程。</p>
+<h1 id="Response-swift"><a href="#Response-swift" class="headerlink" title="Response.swift"></a>Response.swift</h1><p>这个文件主要定义了Requeest的结果。封装了URLRequest，HTTPURLResponse，Data，以及Error。</p>
+<h1 id="ResponseSerializations-swift"><a href="#ResponseSerializations-swift" class="headerlink" title="ResponseSerializations.swift"></a>ResponseSerializations.swift</h1><p>对delegate.data 进行序列化，转为Json，String或者Property，然后封装对应的Respose，真正的value在Respose.result,是一个Result类型。很常见的结果返回方式。</p>
+<h1 id="Other"><a href="#Other" class="headerlink" title="Other"></a>Other</h1><h2 id="Api时长"><a href="#Api时长" class="headerlink" title="Api时长"></a>Api时长</h2><p>Api的请求时长记录在Reqest实例当中。请求开始的设置<code>startTime</code>,结束的时候设置<code>endTime</code>.<br></p>
+<h2 id="Api加密"><a href="#Api加密" class="headerlink" title="Api加密"></a>Api加密</h2><p>本地证书密钥上传在ServerTrustPolicy中，了解不深。应该涉及到请求加密相关。例如服务器需要请求方将本地的公钥打包成证书的形式上传给服务器，服务器认证后，认为没有被第三方窃听后才进行通信。<br></p>
+<h2 id="网络监听"><a href="#网络监听" class="headerlink" title="网络监听"></a>网络监听</h2><p>网络监听是NetworkReachabilityManager处理，利用的是Socket底层提供的Api，应该是不断的发送icmp包及接受其返回来判断网络状况。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>手敲第三方的源码主要是为学习一些代码技巧和架构思想。站在巨人肩膀上才能看得更远，走得更远。</p>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Leven <br/>
+        
+        原文链接 : <a href="">https://leven.top/2020/04/07/%E6%89%8B%E6%95%B2%E6%BA%90%E7%A0%81-Alamofire/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share"
+  style="margin-top: -2rem"
+  data-wechat-qrcode-title="<p>微信扫一扫</p>"
+  data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>"
+   data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter" 
+  
+>
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.png" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.png" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/%E6%BA%90%E7%A0%81/">
+              #源码
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2020/03/24/%E6%89%8B%E6%95%B2%E6%BA%90%E7%A0%81-Kingfisher/" target="_self">手敲源码-Kingfisher</a>
+      </div>
+    
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "ng8TYLGsygPXgOd0KAfMUXiL-gzGzoHsz",
+      appKey: "beYAU0SVV8I3vo82BoR8WPOk",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("ng8TYLGsygPXgOd0KAfMUXiL-gzGzoHsz", "beYAU0SVV8I3vo82BoR8WPOk");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw" target="_blank" rel="noopener">BMW</a> | Made With 💗 | Powered by <a href="https://godbmw.com/" target="_blank" rel="noopener">GodBMW</a>
+    <br>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2018, 1, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

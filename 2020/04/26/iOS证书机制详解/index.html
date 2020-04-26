@@ -8,7 +8,7 @@
   
   
   
-  <title>UML图及代码示范 | Leven</title>
+  <title>iOS证书机制详解 | Leven</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -154,17 +154,17 @@
 
 <div class="post">
   <h1 class="article-title">
-    <span>UML图及代码示范</span>
+    <span>iOS证书机制详解</span>
   </h1>
   <div class="article-top-meta">
     <span>
       发布 : 
-      2020-04-24
+      2020-04-26
     </span>
     
     
       <span>
-        浏览 : <span class="article-timer" data-identity="UML图及代码示范"></span>
+        浏览 : <span class="article-timer" data-identity="iOS证书机制详解"></span>
       </span>
     
   </div>
@@ -173,20 +173,7 @@
 
   <div class="article-content">
     <div class="markdown-body">
-      <h2 id="UML图及代码示范"><a href="#UML图及代码示范" class="headerlink" title="UML图及代码示范"></a>UML图及代码示范</h2><p>UML图可以很好的体现代码的架构。熟练掌握可以有助于提升架构能力。PPT不熟悉那就学会画UML图吧</p>
-<h3 id="类"><a href="#类" class="headerlink" title="类"></a>类</h3><h2 id=""><a href="#" class="headerlink" title=""></a><img src="/images/uml_1.png" alt=""></h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">class Person &#123;</span><br><span class="line">    var name: String?</span><br><span class="line">    var age: String?</span><br><span class="line"></span><br><span class="line">    func getName() -&gt; String? &#123;</span><br><span class="line">        return name</span><br><span class="line">    &#125;</span><br><span class="line">    func setAge(age: String)  &#123;</span><br><span class="line">        age &#x3D; age</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h3><p><img src="/images/uml_2.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">protocol MyInterface &#123;</span><br><span class="line">    static func method1()</span><br><span class="line">    func method2()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h3><p><img src="/images/uml_3.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">class Person &#123;</span><br><span class="line">    var name: String?</span><br><span class="line">    func getName() -&gt; String? &#123;</span><br><span class="line">        return name</span><br><span class="line">    &#125;</span><br><span class="line">    func printMoney(money: Money) &#123;</span><br><span class="line">        print(money.getCount())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Money &#123;</span><br><span class="line">    var count: Float &#x3D; 0.0</span><br><span class="line">    func getCount() -&gt; Float &#123;</span><br><span class="line">        return count</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="持有关系"><a href="#持有关系" class="headerlink" title="持有关系"></a>持有关系</h3><p><img src="/images/uml_4.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">class Person &#123;</span><br><span class="line">    var name: String?</span><br><span class="line">    var money: Money?</span><br><span class="line">    func getName() -&gt; String? &#123;</span><br><span class="line">        return name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Money &#123;</span><br><span class="line">    var count: Float &#x3D; 0.0</span><br><span class="line">    func getCount() -&gt; Float &#123;</span><br><span class="line">        return count</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="继承关系"><a href="#继承关系" class="headerlink" title="继承关系"></a>继承关系</h3><p><img src="/images/uml7.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">class Man: Person &#123;</span><br><span class="line">    var money: Money?</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Person &#123;</span><br><span class="line">    var name: String?</span><br><span class="line">    var age: String?</span><br><span class="line">    func getName() -&gt; String? &#123;</span><br><span class="line">        return name</span><br><span class="line">    &#125;</span><br><span class="line">    func setAge(age: String) &#123;</span><br><span class="line">        age &#x3D; age</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p><img src="/images/uml8.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">class Man: PersonInterface &#123;</span><br><span class="line">    var money: Money?</span><br><span class="line">    var name: String?</span><br><span class="line">    var age: String?</span><br><span class="line">    func getName() -&gt; String? &#123;</span><br><span class="line">        return name</span><br><span class="line">    &#125;</span><br><span class="line">    func setAge(age: String) &#123;</span><br><span class="line">        age &#x3D; age</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Protocol PersonInterface &#123;</span><br><span class="line">    var name: String?</span><br><span class="line">    var age: String?</span><br><span class="line">    func getName() -&gt; String?</span><br><span class="line">    func setAge(age: String)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      <h2 id="iOS证书机制详解"><a href="#iOS证书机制详解" class="headerlink" title="iOS证书机制详解"></a>iOS证书机制详解</h2><p>iOS的证书机制纷繁复杂，所有入门的iOSer估计都比较晕。细致了解后，其实背后主要就一个概念: 数字签名.</p>
     </div>
   </div>
   
@@ -197,7 +184,7 @@
         
           本文作者 : Leven <br/>
         
-        原文链接 : <a href="">https://leven.top/2020/04/24/UML%E5%9B%BE%E5%8F%8A%E4%BB%A3%E7%A0%81%E7%A4%BA%E8%8C%83/</a><br>
+        原文链接 : <a href="">https://leven.top/2020/04/26/iOS%E8%AF%81%E4%B9%A6%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/</a><br>
         版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
         </blockquote>
       </div>
@@ -280,15 +267,9 @@
       <div class="nav-pre">
         <i class="iconfont icon-prev"></i>
         上一篇:
-        <a href="/2020/04/07/%E6%89%8B%E6%95%B2%E6%BA%90%E7%A0%81-Alamofire/" target="_self">手敲源码-Alamofire</a>
+        <a href="/2020/04/24/UML%E5%9B%BE%E5%8F%8A%E4%BB%A3%E7%A0%81%E7%A4%BA%E8%8C%83/" target="_self">UML图及代码示范</a>
       </div>
     
-    
-      <div class="nav-next">
-        下一篇:
-        <a href="/2020/04/26/iOS%E8%AF%81%E4%B9%A6%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/" target="_self">iOS证书机制详解</a>
-        <i class="iconfont icon-next"></i>
-      </div>
     
   </nav>
 

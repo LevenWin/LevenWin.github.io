@@ -1,791 +1,285 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hans">
 
-  
+<!-- Head tag -->
 <head>
-  <meta charset="utf-8">
-  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com" />
-  
-  
-  
-  <title>Leven</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!--Description-->
+    
 
-  
-    <meta name="keywords" content="Leven, leven" />
-  
+    <!--Author-->
+    
+        <meta name="author" content="Leven">
+    
 
-  <script>
-    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
-  </script>
+    <!-- Title -->
+    
+    <title>Leven</title>
 
-  
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
 
-  
-
-  
-    <link rel="icon" href="/images/favicon.ico">
-    <link rel="apple-touch-icon" href="/images/touch-icon.png">
-  
-
-  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
-  
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="/icon/iconfont.css">
-<link rel="stylesheet" href="/css/github-markdown.css">
-<link rel="stylesheet" href="/css/highlight.css">
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
 
 
-  
-<script src="/js/util.js"></script>
-<script src="/js/valine.min.js"></script>
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-  
-
-  
-    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
-    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
-  
-
-  
-    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
-  
-  
-  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
-  
-  
-    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
-  
-
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 <meta name="generator" content="Hexo 4.2.0"></head>
 
-  <body>
+<body>
 
-    
+    <!-- Content -->
+    <!-- Go Site -->
 
-    <div id="app">
 
-      <div class="header-wrap">
-  <header>
-    <div class="site-brand">
-      <div class="site-title">
-        <a href="/">Leven</a>
-      </div>
-    </div>
-    <nav class="site-navigation">
-      <ul class="nav-menu">
-      
-        <li class="nav-item" data-path="/">
-          
-            <a 
-              href="/"
-              target="_self"
-            >
-              主页
-            </a>
-          
-        </li>
-      
-        <li class="nav-item" data-path="/archives/">
-          
-            <a 
-              href="/archives/"
-              target="_self"
-            >
-              归档
-            </a>
-          
-        </li>
-      
-      </ul>
-    </nav>
-    <i class="iconfont icon-menu"></i>
-  </header>
-</div>
 
-<script>
-  let links = document.querySelectorAll('.nav-item');
-  for(let link of links){
-    let childrenLink = link.querySelector('ul');
-    link.addEventListener('mouseenter', () => {
-      if(childrenLink) {
-        childrenLink.className = "nav-menu--dropdown active";
-      }
-    })
-    link.addEventListener('mouseleave', () => {
-      if(childrenLink) {
-        childrenLink.className = "nav-menu--dropdown";
-      }
-    })
-  }
-  let rootRealPath = getRealPath(window.location.pathname, true);
-  for(let link of links) {
-    let linkPath = link.getAttribute("data-path");
-    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
-      link.className = "nav-item hover";
-    }
-  }
-
-  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
-    iconMenuClicked = false;
-  let navDOM = document.querySelector("nav.site-navigation");
-  iconMenu.addEventListener("click", () => {
-    iconMenuClicked 
-      ? navDOM.className = "site-navigation active"
-      : navDOM.className = "site-navigation";
-    iconMenuClicked = !iconMenuClicked;
-  })
-</script>
-
-      
-<div class="container home-index">
-  
-  <div class="post">
-    <h1 class="article-title">
-      <a href="/2020/04/26/iOS%E8%AF%81%E4%B9%A6%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3/">
-        <span>iOS证书机制详解</span>
-      </a>
-    </h1>
-    <!-- PC端文章信息 -->
-    <div class="article-top-meta pc-view">
-      <span>
-        发布时间 : 2020-04-26
-      </span>
-    </div>
-    <!-- 移动端文章信息 -->
-    <div class="article-top-meta mobile-view">
-      <span>
-        发布 : 2020-04-26
-      </span>
-      
-      
-        <span>
-          浏览 : <span class="article-timer" data-identity="iOS证书机制详解"></span>
-        </span>
-      
-    </div>
-    
-    <!-- 文章简介 -->
-    <div class="article-content">
-      <div class="markdown-body article-content--inner" v-html="mdToHtml(psg.summary)">
+<!-- Main Content -->
+<section class="intro">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                
+                    <div class="post-preview">
+    <a href="/2020/04/26/iOS证书机制详解/">
+        <h2 class="post-title">
+            iOS证书机制详解
+        </h2>
         <p>iOS的证书机制纷繁复杂，所有入门的iOSer估计都比较晕。细致了解后，其实背后主要就一个概念: 数字签名…</p>
-      </div>
-    </div>
-    <div class="article-footer">
-      <div class="article-meta pull-left">
-        <!-- 分类pc端可见 -->
-        <span class="pc-view">
-          
-        <span>
-                    
-        </span>
-      </div>
-      
-        <div class="article-meta pull-right">
-          <span class="pc-view">
-            <i class="iconfont icon-view"></i>浏览: <span class="article-timer" data-identity="iOS证书机制详解"></span>
-          </span>
-        </div>
-      
-    </div>
-  </div>
-  
-  <div class="post">
-    <h1 class="article-title">
-      <a href="/2020/04/24/UML%E5%9B%BE%E5%8F%8A%E4%BB%A3%E7%A0%81%E7%A4%BA%E8%8C%83/">
-        <span>UML图及代码示范</span>
-      </a>
-    </h1>
-    <!-- PC端文章信息 -->
-    <div class="article-top-meta pc-view">
-      <span>
-        发布时间 : 2020-04-24
-      </span>
-    </div>
-    <!-- 移动端文章信息 -->
-    <div class="article-top-meta mobile-view">
-      <span>
-        发布 : 2020-04-24
-      </span>
-      
-      
-        <span>
-          浏览 : <span class="article-timer" data-identity="UML图及代码示范"></span>
-        </span>
-      
-    </div>
-    
-    <!-- 文章简介 -->
-    <div class="article-content">
-      <div class="markdown-body article-content--inner" v-html="mdToHtml(psg.summary)">
+    </a>
+</div>
+                
+                    <div class="post-preview">
+    <a href="/2020/04/24/UML图及代码示范/">
+        <h2 class="post-title">
+            UML图及代码示范
+        </h2>
         <p>UML图可以很好的体现代码的架构。熟练掌握可以有助于提升架构能力。</p>
-      </div>
-    </div>
-    <div class="article-footer">
-      <div class="article-meta pull-left">
-        <!-- 分类pc端可见 -->
-        <span class="pc-view">
-          
-        <span>
-                    
-        </span>
-      </div>
-      
-        <div class="article-meta pull-right">
-          <span class="pc-view">
-            <i class="iconfont icon-view"></i>浏览: <span class="article-timer" data-identity="UML图及代码示范"></span>
-          </span>
-        </div>
-      
-    </div>
-  </div>
-  
-  <div class="post">
-    <h1 class="article-title">
-      <a href="/2020/04/07/%E6%89%8B%E6%95%B2%E6%BA%90%E7%A0%81-Alamofire/">
-        <span>手敲源码-Alamofire</span>
-      </a>
-    </h1>
-    <!-- PC端文章信息 -->
-    <div class="article-top-meta pc-view">
-      <span>
-        发布时间 : 2020-04-07
-      </span>
-    </div>
-    <!-- 移动端文章信息 -->
-    <div class="article-top-meta mobile-view">
-      <span>
-        发布 : 2020-04-07
-      </span>
-      
-      
-        <span>
-          浏览 : <span class="article-timer" data-identity="手敲源码-Alamofire"></span>
-        </span>
-      
-    </div>
-    
-    <!-- 文章简介 -->
-    <div class="article-content">
-      <div class="markdown-body article-content--inner" v-html="mdToHtml(psg.summary)">
+    </a>
+</div>
+                
+                    <div class="post-preview">
+    <a href="/2020/04/07/手敲源码-Alamofire/">
+        <h2 class="post-title">
+            手敲源码-Alamofire
+        </h2>
         <p>Alamofire是Swift的常用的第三方网络库，与OC的AFnetworking是同一作者…</p>
-      </div>
-    </div>
-    <div class="article-footer">
-      <div class="article-meta pull-left">
-        <!-- 分类pc端可见 -->
-        <span class="pc-view">
-          
-        <span>
-          
-            <i class="iconfont icon-06tags"></i>标签:
-            
-              <span class="span--tag">
-                <a href="/tags/%E6%BA%90%E7%A0%81/">
-                  #源码
-                </a>
-              </span>
-            
-                    
-        </span>
-      </div>
-      
-        <div class="article-meta pull-right">
-          <span class="pc-view">
-            <i class="iconfont icon-view"></i>浏览: <span class="article-timer" data-identity="手敲源码-Alamofire"></span>
-          </span>
-        </div>
-      
-    </div>
-  </div>
-  
-  <div class="post">
-    <h1 class="article-title">
-      <a href="/2020/03/24/%E6%89%8B%E6%95%B2%E6%BA%90%E7%A0%81-Kingfisher/">
-        <span>手敲源码-Kingfisher</span>
-      </a>
-    </h1>
-    <!-- PC端文章信息 -->
-    <div class="article-top-meta pc-view">
-      <span>
-        发布时间 : 2020-03-24
-      </span>
-    </div>
-    <!-- 移动端文章信息 -->
-    <div class="article-top-meta mobile-view">
-      <span>
-        发布 : 2020-03-24
-      </span>
-      
-      
-        <span>
-          浏览 : <span class="article-timer" data-identity="手敲源码-Kingfisher"></span>
-        </span>
-      
-    </div>
-    
-    <!-- 文章简介 -->
-    <div class="article-content">
-      <div class="markdown-body article-content--inner" v-html="mdToHtml(psg.summary)">
+    </a>
+</div>
+                
+                    <div class="post-preview">
+    <a href="/2020/03/24/手敲源码-Kingfisher/">
+        <h2 class="post-title">
+            手敲源码-Kingfisher
+        </h2>
         <p>当Kingfisher从本地或者server加载图片的时候，首先会将源封装为Resource或者Provider。如果是server的图片，首先会判断是否在MemoryCache中，如果在并且没有过期，则直接返回，并且更新过期时间…</p>
-      </div>
-    </div>
-    <div class="article-footer">
-      <div class="article-meta pull-left">
-        <!-- 分类pc端可见 -->
-        <span class="pc-view">
-          
-        <span>
-          
-            <i class="iconfont icon-06tags"></i>标签:
-            
-              <span class="span--tag">
-                <a href="/tags/%E6%BA%90%E7%A0%81/">
-                  #源码
-                </a>
-              </span>
-            
-                    
-        </span>
-      </div>
-      
-        <div class="article-meta pull-right">
-          <span class="pc-view">
-            <i class="iconfont icon-view"></i>浏览: <span class="article-timer" data-identity="手敲源码-Kingfisher"></span>
-          </span>
-        </div>
-      
-    </div>
-  </div>
-  
-  <div class="post">
-    <h1 class="article-title">
-      <a href="/2020/03/23/%E5%AE%89%E5%85%A8%E5%8A%A0%E5%AF%86%E7%9F%A5%E8%AF%86%E6%A6%82%E8%A7%88/">
-        <span>安全知识概览</span>
-      </a>
-    </h1>
-    <!-- PC端文章信息 -->
-    <div class="article-top-meta pc-view">
-      <span>
-        发布时间 : 2020-03-23
-      </span>
-    </div>
-    <!-- 移动端文章信息 -->
-    <div class="article-top-meta mobile-view">
-      <span>
-        发布 : 2020-03-23
-      </span>
-      
-      
-        <span>
-          浏览 : <span class="article-timer" data-identity="安全加密知识概览"></span>
-        </span>
-      
-    </div>
-    
-    <!-- 文章简介 -->
-    <div class="article-content">
-      <div class="markdown-body article-content--inner" v-html="mdToHtml(psg.summary)">
+    </a>
+</div>
+                
+                    <div class="post-preview">
+    <a href="/2020/03/23/安全加密知识概览/">
+        <h2 class="post-title">
+            安全知识概览
+        </h2>
         <p>当我们通过互联网交互数据的时候，数据通过网络设备到达另一方。为了使数据安全完整的达到对方，安全技术是不可或缺的。这涉及到四个基本问题。窃听，欺骗，伪造，还有否认…</p>
-      </div>
-    </div>
-    <div class="article-footer">
-      <div class="article-meta pull-left">
-        <!-- 分类pc端可见 -->
-        <span class="pc-view">
-          
-        <span>
-          
-            <i class="iconfont icon-06tags"></i>标签:
-            
-              <span class="span--tag">
-                <a href="/tags/%E5%8A%A0%E5%AF%86/">
-                  #加密
-                </a>
-              </span>
-            
-                    
-        </span>
-      </div>
-      
-        <div class="article-meta pull-right">
-          <span class="pc-view">
-            <i class="iconfont icon-view"></i>浏览: <span class="article-timer" data-identity="安全加密知识概览"></span>
-          </span>
-        </div>
-      
-    </div>
-  </div>
-  
-  <div class="post">
-    <h1 class="article-title">
-      <a href="/2020/03/20/Promise%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0/">
-        <span>Promise原理与实现</span>
-      </a>
-    </h1>
-    <!-- PC端文章信息 -->
-    <div class="article-top-meta pc-view">
-      <span>
-        发布时间 : 2020-03-20
-      </span>
-    </div>
-    <!-- 移动端文章信息 -->
-    <div class="article-top-meta mobile-view">
-      <span>
-        发布 : 2020-03-20
-      </span>
-      
-      
-        <span>
-          浏览 : <span class="article-timer" data-identity="Promise原理与实现"></span>
-        </span>
-      
-    </div>
-    
-    <!-- 文章简介 -->
-    <div class="article-content">
-      <div class="markdown-body article-content--inner" v-html="mdToHtml(psg.summary)">
+    </a>
+</div>
+                
+                    <div class="post-preview">
+    <a href="/2020/03/20/Promise原理与实现/">
+        <h2 class="post-title">
+            Promise原理与实现
+        </h2>
         <p>Promise主要是将异步操作以链式回调的方式实现，用以解决回调陷阱的问题…</p>
-      </div>
-    </div>
-    <div class="article-footer">
-      <div class="article-meta pull-left">
-        <!-- 分类pc端可见 -->
-        <span class="pc-view">
-          
-        <span>
-          
-            <i class="iconfont icon-06tags"></i>标签:
-            
-              <span class="span--tag">
-                <a href="/tags/Promose-js/">
-                  #Promose,js
-                </a>
-              </span>
-            
-                    
-        </span>
-      </div>
-      
-        <div class="article-meta pull-right">
-          <span class="pc-view">
-            <i class="iconfont icon-view"></i>浏览: <span class="article-timer" data-identity="Promise原理与实现"></span>
-          </span>
+    </a>
+</div>
+                
+            </div>
         </div>
-      
+        <!-- Pagination -->
+        <ul class="pagiantion">
+    
+    
+</ul>
+        <!-- Search -->
+        
+    <a class="nav-search" data-toggle="modal" data-target="#searchModalCenter">
+      <i class="fa fa-search"></i>
+    </a>
+    
+    <div
+      class="modal fade"
+      id="searchModalCenter"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="searchModalCenterTitle"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <input
+              type="text"
+              id="local-search-input"
+              class="form-control"
+              placeholder=""
+            />
+          </div>
+          <div class="modal-body">
+            <div id="local-search-result"></div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  
-
-  <nav class="page-navigation">
     
+    <script type="text/javascript">
+      // define the search function
+      var searchFunc = function(path, search_id, content_id) {
+        "use strict";
+        $.ajax({
+          url: path,
+          dataType: "xml",
+          success: function(xmlResponse) {
+            // get the contents from search data
+            var datas = $("entry", xmlResponse)
+              .map(function() {
+                return {
+                  title: $("title", this).text(),
+                  content: $("content", this).text(),
+                  url: $("id", this).text()
+                };
+              })
+              .get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener("input", function() {
+              var str = '<ul class="search-result-list">';
+              var keywords = this.value
+                .trim()
+                .toLowerCase()
+                .split(/[\s\-]+/);
+              $resultContent.innerHTML = "";
+              if (this.value.trim().length <= 0) {
+                return;
+              }
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = true;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content
+                  .trim()
+                  .replace(/<[^>]+>/g, "")
+                  .toLowerCase();
+                var data_url = data.url;
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if (data_title != "" && data_content != "") {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if (index_title < 0 && index_content < 0) {
+                      isMatch = false;
+                    } else {
+                      if (index_content < 0) {
+                        index_content = 0;
+                      }
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  str +=
+                    "<li><a href='" +
+                    data_url +
+                    "' class='search-result-title'>" +
+                    data_title +
+                    "</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g, "");
+                  if (first_occur >= 0) {
+                    // cut out 30 characters
+                    var start = first_occur - 15;
+                    var end = first_occur + 15;
+                    if (start < 0) {
+                      start = 0;
+                    }
+                    if (start == 0) {
+                      end = 30;
+                    }
+                    if (end > content.length) {
+                      end = content.length;
+                    }
     
-  </nav>
-
-  
-    <script defer>
-const valineAPI = (() => {
-  try {
-    AV.init("ng8TYLGsygPXgOd0KAfMUXiL-gzGzoHsz", "beYAU0SVV8I3vo82BoR8WPOk");
-  } catch(error) {}
-  const isExist = (identity) => {
-    identity = identity || getRealPath();
-    let query = new AV.Query('Timer');
-    return new Promise((resolve, reject) => {
-      query.equalTo("identity", identity);
-      query.find().then(results => {
-        resolve(results.length > 0);
-      }, error => reject(error));
-    })
-  }
-
-  const _get = (identity) => {
-    let query = null;
-    if(identity && identity instanceof Array){
-      let querys = [];
-      for(let i = 0; i < identity.length; ++i) {
-        querys[i] = new AV.Query('Timer');
-        querys[i].equalTo('identity', identity[i]);
-      }
-      query = AV.Query.or.apply(null ,querys);
-    } else {
-      identity = identity || getRealPath();
-      query = new AV.Query("Timer");
-      query.equalTo("identity", identity);
-    }
-
-    return new Promise((resolve, reject) => {
-      query.find()
-      .then(results => resolve(results))
-      .catch(error => reject(error))
-    })
-  }
-
-  const create = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-      let Todo = AV.Object.extend('Timer');
-      let todo = new Todo();
-      todo.set("times", 1);
-      todo.set("identity", identity);
-      todo.save().then(res => resolve(true), error => reject(error));
-    })
-  }
-
-  const update = (identity) => {
-    identity = identity || getRealPath();
-    return new Promise((resolve, reject) => {
-      let query = new AV.Query('Timer');
-      query.equalTo("identity", identity);
-      query.find().then(todos => {
-        todos.forEach(todo => {
-          todo.set("times", todo.attributes.times + 1);
+                    var match_content = content.substr(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword) {
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(
+                        regS,
+                        '<em class="search-keyword">' + keyword + "</em>"
+                      );
+                    });
+    
+                    str += '<p class="search-result">' + match_content + "...</p>";
+                  }
+                  str += "</li>";
+                }
+              });
+              str += "</ul>";
+              $resultContent.innerHTML = str;
+            });
+          }
         });
-        return AV.Object.saveAll(todos);
-      }).then(todos => resolve(true), error => reject(error));
-    })
-  }
-
-  return {
-    isExist,
-    _get,
-    update,
-    create
-  }
-})()
-
-const calcAndWriteTimes = () => {
-  let isPost = false;
-
-  let timerAllDOM = document.querySelectorAll(".article-timer");
-
-  if(isPost) {
-    let identity = timerAllDOM[0].getAttribute("data-identity");
-    valineAPI.isExist(identity)
-    .then(exist => {
-      if(exist) {
-        return valineAPI.update(identity);
-      }
-      return new Promise(resolve => resolve(true));
-    })
-    .then( succuess => valineAPI._get(identity))
-    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
-    .catch(error => console.log(error.message))
-    return ;
-  }
-
-  let timerDOMCache = {};
-
-  for(let timerDOM of timerAllDOM) {
-    let identity = timerDOM.getAttribute("data-identity");
-    if(timerDOMCache.hasOwnProperty(identity)){
-      timerDOMCache[identity].dom.push(timerDOM);
-    }else{
-      timerDOMCache[identity] = {
-        dom: [timerDOM],
-        times: undefined
       };
-    }
-  }
-
-  let identities = Object.keys(timerDOMCache);
-  valineAPI._get(identities).then(results => {
-    for(let result of results) {
-      let {identity, times} = result.attributes;
-      timerDOMCache[identity].times = times;
-      timerDOMCache[identity].dom.map(item => item.innerText = times);
-    }
-    for(let identity of identities) {
-      if(timerDOMCache[identity].times){
-        continue;
-      }
-      timerDOMCache[identity].dom.map(item => item.innerText = 1);
-      valineAPI.create(identity);
-    }
-  }).catch(error => console.log(error.message))
-}
-
-if(true){
-  calcAndWriteTimes();
-}
-</script>
-   
-</div>
-
-
-      <footer>
-  <p class="site-info">
-    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
-    <br>
-    Theme - <a href="https://github.com/dongyuanxin/theme-bmw" target="_blank" rel="noopener">BMW</a> | Made With 💗 | Powered by <a href="https://godbmw.com/" target="_blank" rel="noopener">GodBMW</a>
-    <br>
     
-  </p>
-</footer>
+      // use atom.xml to search blog
+      searchFunc("/atom.xml", "local-search-input", "local-search-result");
+      $("#searchModalCenter").on("shown.bs.modal", function(e) {
+        setTimeout(function() {
+          $("#local-search-input").focus();
+        }, 1);
+      });
+    </script>
 
-
-
-<script>
-const timeToNowDOM = document.querySelector("#time-to-now");
-const startTimestamp = new Date(2018, 1, 10).getTime();
-
-const updateTimeStr = () => {
-  let offset = parseInt(
-      (new Date().getTime() - startTimestamp) / 1000,
-      10
-    ),
-    day = Math.floor(offset / 86400),
-    hour = Math.floor((offset % 86400) / 3600),
-    minute = Math.floor(((offset % 86400) % 3600) / 60),
-    second = Math.floor(((offset % 86400) % 3600) % 60);
-  timeToNowDOM.innerHTML =
-    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
-  setTimeout(updateTimeStr, 500);
-}
-
-setTimeout(updateTimeStr, 500);
-</script>
-
-
-      <div class="back-to-top hidden">
-  <span>
-    <i class="iconfont icon-60"></i><span></span>%
-  </span>
-</div>
-
-<script>
-const updateIconToTop = percent => {
-  let dom = document.querySelector(".back-to-top span span");
-  dom.innerText = percent;
-  if(percent < 1) {
-    document.querySelector(".back-to-top").className = "back-to-top hidden";
-  } else {
-    document.querySelector(".back-to-top").className = "back-to-top";
-  }
-}
-
-const handleScoll = () => {
-  let isRunning = false;
-  return () => {
-    if (isRunning) return;
-    isRunning = true;
-    window.requestAnimationFrame(timestamp => {
-      let scrollTop =
-          document.documentElement.scrollTop || document.body.scrollTop,
-        scrollHeight =
-          document.documentElement.scrollHeight ||
-          document.body.scrollHeight,
-        clientHeight =
-          document.documentElement.clientHeight ||
-          document.body.clientHeight;
-      isRunning = false;
-      if (scrollTop <= 1) {
-        updateIconToTop(0);
-        return;
-      }
-      if (scrollTop + clientHeight >= scrollHeight) {
-        updateIconToTop(100);
-      } else {
-        updateIconToTop(parseInt(
-          100 * scrollTop / (scrollHeight - clientHeight),
-          10
-        ));
-      }
-    });
-  };
-}
-
-const backToTop = () => {
-  let scrollTop =
-      document.documentElement.scrollTop || document.body.scrollTop,
-    delay = 10,
-    time = 200;
-  if (scrollTop <= 20) {
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-    return;
-  }
-  let step = Math.ceil(scrollTop * delay / time);
-  let timer = setInterval(() => {
-    scrollTop =
-      document.documentElement.scrollTop || document.body.scrollTop;
-    if (scrollTop - step <= 0) {
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      clearInterval(timer);
-    } else {
-      document.documentElement.scrollTop = scrollTop - step;
-      document.body.scrollTop = scrollTop - step;
-    }
-  }, delay);
-}
-
-document.addEventListener("scroll", handleScoll(), false);
-
-document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
-
-</script>
 
     </div>
+</section>
 
-    
-      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
-<script>
-  (() => {
-    const mathjaxConfig = {
-      showProcessingMessages: false, //关闭js加载过程信息
-      messageStyle: "none", //不显示信息
-      jax: ["input/TeX", "output/HTML-CSS"],
-      tex2jax: {
-        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
-        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
-        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
-      },
-      "HTML-CSS": {
-        availableFonts: ["STIX", "TeX"], //可选字体
-        showMathMenu: false //关闭右击菜单显示
-      }
-    }
-
-    let mathjaxInterval = setInterval(() => {
-      if(!window.MathJax){
-        return;
-      }
-      window.MathJax.Hub.Config(mathjaxConfig)
-      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
-
-      clearInterval(mathjaxInterval)
-    }, 10)    
-  })()
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
 </script>
+  
+    <!-- Google Analytics -->
     
 
-    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
-<script async>
-  let fancyTimer = setInterval(function(){
-    if(!window.$){
-      return;
-    }
-    $(document).ready(function() {
-      $(".post img").each(function () {
-        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
-          return;
-        }
-        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
-        var element = document.createElement("a");
-        $(element).attr("data-fancybox", "gallery");
-        $(element).attr("href", $(this).attr("src"));
-        $(this).wrap(element);
-      });
-      
-      clearInterval(fancyTimer);
-    });
-  }, 10);
-</script>
+    <!-- Service Worker -->
+    <!-- if using service worker -->
 
     
-  </body>
+</body>
 
 </html>

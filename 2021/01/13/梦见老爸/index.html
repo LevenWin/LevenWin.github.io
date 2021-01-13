@@ -9,7 +9,7 @@
 
     <!--Description-->
     
-        <meta name="description" content="iOS的证书机制纷繁复杂，所有入门的iOSer估计都比较晕。细致了解后，其实背后主要就一个概念: 数字签名…">
+        <meta name="description" content="每个温馨舒适的梦里，都带一种现实中见不到的温暖的朦胧的光晕。就像是梦里的世界被一层透明的胶状物质包裹着。外层的阳光直射进来，分散在梦里的整个世界。">
     
 
     <!--Author-->
@@ -19,7 +19,7 @@
 
     <!-- Title -->
     
-    <title>iOS证书机制详解 | Leven</title>
+    <title>梦见老爸 | Leven</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
@@ -45,7 +45,10 @@
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-<meta name="generator" content="Hexo 5.3.0"></head>
+<meta name="generator" content="Hexo 5.3.0"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker">
+<script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script>
+<script src="/assets/js/Meting.min.js" class="meting-script-marker"></script>
+</head>
 
 <body>
 
@@ -63,7 +66,7 @@
                     <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                         <div class="post-heading">
                             <h1>
-                                iOS证书机制详解
+                                梦见老爸
                             </h1>
                         </div>
                     </div>
@@ -77,12 +80,19 @@
                 <div class="row">
                     <!-- Post Main Content -->
                     <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                        <p>iOS的证书机制纷繁复杂，所有入门的iOSer估计都比较晕。细致了解后，其实背后主要就一个概念: 数字签名…</p>
+                        <p>每个温馨舒适的梦里，都带一种现实中见不到的温暖的朦胧的光晕。就像是梦里的世界被一层透明的胶状物质包裹着。外层的阳光直射进来，分散在梦里的整个世界。</p>
 <a id="more"></a>
 
-<h2 id="iOS证书机制详解"><a href="#iOS证书机制详解" class="headerlink" title="iOS证书机制详解"></a>iOS证书机制详解</h2><p>iOS的证书机制纷繁复杂，所有入门的iOSer估计都比较晕。细致了解后，其实背后主要就一个概念: 数字签名。数字签名的原理是依靠非堆成加密实现的。前面有介绍过安全加密的基础知识。<a href="https://leven.fun/2020/03/23/安全加密知识概览/" target="_blank" rel="noopener">安全基础知识</a></p>
-<h3 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h3><p>将需要的签名的数据m，利用非公开的私钥A将其对应的hash: m_hash加密生成m_signature。公开的公钥a可以将m_signature解密为m1_hash,如果，m1_hash和m_hash一致，则能确定数据m被私钥A的持有者签名认证过。</p>
-<h3 id="本地证书生成"><a href="#本地证书生成" class="headerlink" title="本地证书生成"></a>本地证书生成</h3><p>我们在本地的证书颁发机构生成.certSigningRequest文件。此时其实已经生成了公钥M和私钥m 在本地证书管理的KeyChain里。certSigningRequest文件包含了公钥和个人基本信息。我们在Apple网站上传这个文件，Apple也有对应的公钥A和私钥a。利用私钥a对我们本地的公钥文件进行签名认证。将这个文件下载到本地，双击安装。这一步其实就是保证了我们的公钥是有效认证过的。后续这个公钥会打包进我们App包里。可以理解公钥是一个钥匙，而私钥是一把锁。后续流程会使用我们本地生成的私钥m对App进行加密的操作。这把钥匙就可以解开数据。<br><img src="/images/ios_certificate.png" alt=""></p>
+<br>
+<br>
+
+    <div id="aplayer-UgONQUyK" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="20954450" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="true" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86" data-loop="all"
+    ></div>
+
+<h4 id="爸爸身体健康，在老家生活。"><a href="#爸爸身体健康，在老家生活。" class="headerlink" title="爸爸身体健康，在老家生活。"></a>爸爸身体健康，在老家生活。</h4><p>昨晚梦到了爸爸。梦里我们俩走在一个乡下某个地方。爸爸走在前面，我在后面靠边跟着。阳光从前方斜射下来，爸爸背影的轮廓挺拔且散着光辉。我们走到了一个古建门楼前面。门楼立在我们所在的高地边缘，底下是开新农村样式的住宅，间隔着坐落在稀树林中。爸爸指着门楼上的古建图文说：这就是我做的。我注视着门上方中间对称画着的金黄色花纹和线条。因为现实中没看到过爸爸画这图案。一般都是双龙或者双凤。但这个都不太像，有点类似抽象感的双凤。后面我们来到其他地方，画面风格和之前的类似。但是竟然梦到同村的一个大人在路边擦皮鞋，称为A吧。A在我小时候在村算是比较跳脱的一位，每次看到他都是皮鞋休闲西服一套，头发梳的整齐，整个人看起来年轻帅气且带着痞气。他以包工程为生，大部分时间好像是在新疆谋生。但是应该不太会过日子，村里没有他发家致富的消息。梦里他在路边擦皮鞋，我爸坐在他对面的椅子上。寒暄了几句，大概是怎么在这擦皮鞋。外面日子不好过。运气不好，没有混好。日子还要过，先回来干着。我在旁边看着，他把我爸的皮鞋擦得铮亮。</p>
+<p>小时候关于A的记忆大致只有一件，就是有天傍晚，我和我爸妈偎在床上看电视。他来到我们那个房，应该是说着，我现在没钱，被人欠我的钱没结清，我也过得不好，有的就这几件<br>衣服。我爸妈说有钱就尽量结清。我们都是打工的，不容易。我当时在床上，只想着这家伙快点走吧。我可不想被别人知道，我还是赖着和爸妈睡。另外还有些关于他儿子小a的记忆，小a比我小5岁左右。由于A长期在外，小a和他妈妈一起在老家生活，后来初中去了城里上学。再后来听说学坏了，再后来听说A离婚了，小a好像出了意外。我已经十几年没有见过这家人了。</p>
+<p>爸爸干的是手艺活，在古建筑上画画，做了几十年了。我干的其实也算是手艺活。但是干得还不如我爸好，他都带出好几个徒弟了。更不如他能吃苦耐劳。几年之前和爸爸在许多观念上是有很多矛盾的，我曾经对着他大声的反驳和呵斥过。随着这几年在外工作的时间越久，就越觉的爸爸的伟大之处。虽然现在我和他说得话也不多。但是早已能理解他的世界了。愿他身体健康，脸上能更多的展现那略带羞涩的眼角充满褶皱的笑容。</p>
 
 
                             <!-- Meta -->
@@ -93,7 +103,7 @@
                                     
                                 </div>
                                 <div class="post-date">
-                                    2020-04-26
+                                    2021-01-13
                                 </div>
                             </div>
                     </div>

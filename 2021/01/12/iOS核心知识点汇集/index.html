@@ -9,7 +9,7 @@
 
     <!--Description-->
     
-        <meta name="description" content="iOS的证书机制纷繁复杂，所有入门的iOSer估计都比较晕。细致了解后，其实背后主要就一个概念: 数字签名…">
+        <meta name="description" content="iOS核心知识点汇总。俗称八股文">
     
 
     <!--Author-->
@@ -19,7 +19,7 @@
 
     <!-- Title -->
     
-    <title>iOS证书机制详解 | Leven</title>
+    <title>iOS核心知识点汇集 | Leven</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
@@ -63,7 +63,7 @@
                     <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                         <div class="post-heading">
                             <h1>
-                                iOS证书机制详解
+                                iOS核心知识点汇集
                             </h1>
                         </div>
                     </div>
@@ -77,12 +77,16 @@
                 <div class="row">
                     <!-- Post Main Content -->
                     <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                        <p>iOS的证书机制纷繁复杂，所有入门的iOSer估计都比较晕。细致了解后，其实背后主要就一个概念: 数字签名…</p>
+                        <p>iOS核心知识点汇总。俗称八股文</p>
 <a id="more"></a>
-
-<h2 id="iOS证书机制详解"><a href="#iOS证书机制详解" class="headerlink" title="iOS证书机制详解"></a>iOS证书机制详解</h2><p>iOS的证书机制纷繁复杂，所有入门的iOSer估计都比较晕。细致了解后，其实背后主要就一个概念: 数字签名。数字签名的原理是依靠非堆成加密实现的。前面有介绍过安全加密的基础知识。<a href="https://leven.fun/2020/03/23/安全加密知识概览/" target="_blank" rel="noopener">安全基础知识</a></p>
-<h3 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h3><p>将需要的签名的数据m，利用非公开的私钥A将其对应的hash: m_hash加密生成m_signature。公开的公钥a可以将m_signature解密为m1_hash,如果，m1_hash和m_hash一致，则能确定数据m被私钥A的持有者签名认证过。</p>
-<h3 id="本地证书生成"><a href="#本地证书生成" class="headerlink" title="本地证书生成"></a>本地证书生成</h3><p>我们在本地的证书颁发机构生成.certSigningRequest文件。此时其实已经生成了公钥M和私钥m 在本地证书管理的KeyChain里。certSigningRequest文件包含了公钥和个人基本信息。我们在Apple网站上传这个文件，Apple也有对应的公钥A和私钥a。利用私钥a对我们本地的公钥文件进行签名认证。将这个文件下载到本地，双击安装。这一步其实就是保证了我们的公钥是有效认证过的。后续这个公钥会打包进我们App包里。可以理解公钥是一个钥匙，而私钥是一把锁。后续流程会使用我们本地生成的私钥m对App进行加密的操作。这把钥匙就可以解开数据。<br><img src="/images/ios_certificate.png" alt=""></p>
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6915760687855697928">ARC内存管理</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903585814151175">iOS内存管理详解</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.tracyone.com/tags/ARC/">ARC上中下</a></li>
+</ul>
+<h2 id="Runtime"><a href="#Runtime" class="headerlink" title="Runtime"></a>Runtime</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.desgard.com/iOS-Source-Probe/Objective-C/Runtime/浅谈Associated%20Objects.html">Runtime系列博客</a></li>
+</ul>
 
 
                             <!-- Meta -->
@@ -93,7 +97,7 @@
                                     
                                 </div>
                                 <div class="post-date">
-                                    2020-04-26
+                                    2021-01-12
                                 </div>
                             </div>
                     </div>

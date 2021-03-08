@@ -9,7 +9,18 @@
 
     <!--Description-->
     
-        <meta name="description" content="iOS核心知识点汇总。俗称八股文">
+        <meta name="description" content="变量和类的结构
+堆和栈
+变量和类是怎么初始化的。
+引用计数原理和类型。taggedPointer，NONPOINTER_ISA，散列表。
+ARC的原理，实例所持有的变量什么时候release操作？
+weak表
+autorelase表
+
+
+参考：
+
+https://juejin.cn/post/684">
     
 
     <!--Author-->
@@ -19,7 +30,7 @@
 
     <!-- Title -->
     
-    <title>iOS核心知识点汇集 | Leven</title>
+    <title>iOS内存管理 | Leven</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
@@ -63,7 +74,7 @@
                     <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                         <div class="post-heading">
                             <h1>
-                                iOS核心知识点汇集
+                                iOS内存管理
                             </h1>
                         </div>
                     </div>
@@ -77,18 +88,20 @@
                 <div class="row">
                     <!-- Post Main Content -->
                     <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                        <p>iOS核心知识点汇总。俗称八股文</p>
-<a id="more"></a>
-<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6915760687855697928">ARC内存管理</a></li>
-<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903585814151175">iOS内存管理详解</a></li>
-<li><a target="_blank" rel="noopener" href="http://blog.tracyone.com/tags/ARC/">ARC上中下</a></li>
-</ul>
-<h2 id="Runtime"><a href="#Runtime" class="headerlink" title="Runtime"></a>Runtime</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://www.desgard.com/iOS-Source-Probe/Objective-C/Runtime/浅谈Associated%20Objects.html">Runtime系列博客</a></li>
-</ul>
-<h2 id="编译链接"><a href="#编译链接" class="headerlink" title="编译链接"></a>编译链接</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6885288560603103240">程序员的修养-编译链接</a></li>
+                        <ol>
+<li>变量和类的结构</li>
+<li>堆和栈</li>
+<li>变量和类是怎么初始化的。</li>
+<li>引用计数原理和类型。taggedPointer，NONPOINTER_ISA，散列表。</li>
+<li>ARC的原理，实例所持有的变量什么时候release操作？</li>
+<li>weak表</li>
+<li>autorelase表</li>
+<li></li>
+</ol>
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903855751168013#heading-4">https://juejin.cn/post/6844903855751168013#heading-4</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903713832697864">https://juejin.cn/post/6844903713832697864</a></li>
 </ul>
 
 
@@ -100,7 +113,7 @@
                                     
                                 </div>
                                 <div class="post-date">
-                                    2021-01-12
+                                    2021-03-08
                                 </div>
                             </div>
                     </div>

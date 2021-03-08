@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="因为人类能够掌控事物的正反面，所以计算机诞生了">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Leven">
+    
+
+    <!-- Title -->
+    
+    <title>1和0和计算机 | Leven</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                1和0和计算机
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <p>因为人类能够掌控事物的正反面，所以计算机诞生了</p>
+<a id="more"></a>
+<p>最近看了《编码-隐匿在计算机软硬件背后的语言》这本书，让我对计算机的构成和运行了有了更深入的了解。计算机是纯逻辑的工具，暂时不带任何意识和情感，所有的运作都是基于1和0。当人们掌握一件物件的正反面的时候，计算机就诞生了。</p>
+<h3 id="原始的编码和组合"><a href="#原始的编码和组合" class="headerlink" title="原始的编码和组合"></a>原始的编码和组合</h3><p>从最开关灯说起。当两个距离遥远的人在和黑夜只能通过开关灯传递信息的时，两个人约定开一下灯，代表你，开两下灯代表好，开三下灯代表吗。每次发送一个信息的时候，都暂停1秒钟。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1代表灯亮</span><br><span class="line">0代表灯灭</span><br><span class="line"></span><br><span class="line">你 ---- 10</span><br><span class="line">好 ---- 1010</span><br><span class="line">吗 ---- 101010</span><br><span class="line"></span><br><span class="line">10 1010 1010 -- 你好吗？</span><br><span class="line">1010 好</span><br></pre></td></tr></table></figure>
+<p>这种原始的信息交流方式其实就应用在摩斯密码中。只不过摩斯密码中只有短促的嘀声音，和比较长的哒声音。不同的嘀嗒组合代表不同的字母<br><img src="/images/morse_code.jpg" alt=""></p>
+<h3 id="继电器与门"><a href="#继电器与门" class="headerlink" title="继电器与门"></a>继电器与门</h3><p>对于计算机，输入为1或者0，中间经过转换后输出1或者0，中间转换的逻辑就是依赖有规律的或与门的处理然后输出。例如我们希望输入1，电脑输出0，.我们可以利用比较原始的继电器实现这点。假设开关放下代表1，开关打开代表0， 灯亮代表1，灯灭代表0。实际上我们实现了反向器</p>
+<p>关 -&gt; 灯灭 ： 1  -&gt; 0<br>开 -&gt; 灯亮 ： 0  -&gt; 1</p>
+<p><img src="/images/gate_1.png" alt=""></p>
+<p>可以用两个继电器实现更多的门结构<br>与门<br><img src="/images/gate_2.png" alt=""><br>或门<br><img src="/images/gate_6.jpg" alt=""></p>
+<h3 id="加法器"><a href="#加法器" class="headerlink" title="加法器"></a>加法器</h3><p>我们可以利用上面的门电路实现一个简单的加法器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0 + 0 &#x3D; 00 </span><br><span class="line">0 + 1 &#x3D; 01</span><br><span class="line">1 + 0 &#x3D; 01</span><br><span class="line">1 + 1 &#x3D; 10</span><br></pre></td></tr></table></figure>
+<p> <b style= "color: red">将和的第一位视为进位位，第二位视为加法位</b></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">进位位</span><br><span class="line">0 + 0 &#x3D; 0</span><br><span class="line">0 + 1 &#x3D; 0</span><br><span class="line">1 + 0 &#x3D; 0</span><br><span class="line">1 + 1 &#x3D; 1</span><br></pre></td></tr></table></figure>
+<p>可以用与门表示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">加法位</span><br><span class="line">0 + 0 &#x3D; 0 </span><br><span class="line">0 + 1 &#x3D; 1</span><br><span class="line">1 + 0 &#x3D; 1</span><br><span class="line">1 + 1 &#x3D; 0</span><br></pre></td></tr></table></figure>
+<p>可以用异或门表示</p>
+<p>两个门相加就是一个加法器。不过这个加法器其实是一个半加器。因为无法接受上一级的进位。<br><img src="/images/gate_9.png" alt=""></p>
+<p>两个加法器相组合可以组成一个全加器。实际对于CPU来讲最核心的模块之一就是运算器。而加法器就是最核心的运算器。<br><img src="/images/gate_10.png" alt=""><br>通用的8位加法器如下图<br><img src="/images/gate_11.png" alt=""></p>
+<h3 id="减法器"><a href="#减法器" class="headerlink" title="减法器"></a>减法器</h3><p>回顾下负数在计算机中的表示方法例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">77为01001101</span><br><span class="line">-77为77的取反：10110010 ，然后再加1为10110011</span><br></pre></td></tr></table></figure>
+<p>在做176-253的时候，为了防止借位实际是进行了999 - 253 + 176 + 1 - 1000<br>(999 - 253) 这一步实际就是进行了取反的操作。用二进制表示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">176:10110000</span><br><span class="line">253:11111101</span><br><span class="line">&#x3D;&gt; 253取反 00000010</span><br><span class="line">&#x3D;&gt; 加10110000为10110010</span><br><span class="line">&#x3D;&gt; 加1为10110011</span><br><span class="line">10110011就是-77的二进制表示法</span><br></pre></td></tr></table></figure>
+<p><img src="/images/gate_12.png" alt=""></p>
+<h3 id="存储器"><a href="#存储器" class="headerlink" title="存储器"></a>存储器</h3><p>既然知道了运算器的基本原理。那运算好数据如何存储呢？下面我们简单说明下储存器的基本原理。</p>
+<h4 id="反馈器"><a href="#反馈器" class="headerlink" title="反馈器"></a>反馈器</h4><p>下面这个电路示意图可以储存某个引脚的上一次的输入值。<br><img src="/images/gate_14.png" alt=""><br>这两个门器件是或非门。当Y，V都打开的时候，灯是熄灭的状态，当Y闭合，灯亮。<br><img src="/images/gate_13.png" alt=""></p>
+<p>当Y断开，灯还是亮的状态。<br>当V闭合，灯熄灭<br><img src="/images/gate_15.png" alt=""><br>当V断开合，灯还是熄灭状态<br>实际这是一个R-S触发器<br><img src="/images/gate_16.png" alt=""><br><img src="/images/gate_17.png" alt=""><br>我们再加两个或门和一个保持位端口就构成了D型触发器<br><img src="/images/gate_18.png" alt=""><br>保持位一般是时钟震荡器输出。D型触发器可以锁住一位数据，并且保持它，以便后续使用。所以也叫做一位存储器。我们可以优化和组合多个锁存器构成8位锁存器。利用前面的加法器，我们可以构造一个可以连续计算计算器了。<br>简化的8位RAM<br><img src="/images/gate_19.png" alt=""></p>
+<h3 id="自动化"><a href="#自动化" class="headerlink" title="自动化"></a>自动化</h3><p>当在RAM中存入指令和数据，CPU根据读到的指令和数据在时钟信号的驱动下做数据运算，存储和输出。我们平时用高级语言写的代码，在编译成机器语言之后，就是CPU能识别的指令和数据了。</p>
+<h3 id="总线"><a href="#总线" class="headerlink" title="总线"></a>总线</h3><p>CPU与周边设备的信息交流就是通过总线来运作的，一般为了效率会在CPU等设备内部也会存在一些微总线。设备之间可以通过中断来决定总线的使用分配。</p>
+<h3 id="操作系统"><a href="#操作系统" class="headerlink" title="操作系统"></a>操作系统</h3><p>为了人类更有效的控制计算机，人们发明了操作系统。从最开始的纸片打孔来控制计算机的运行，到现在分时复用，多任务，多线程来更有效的分配计算机资源。为了解决内存不够，碎片化等问题，操作系统又引入了虚拟内存技术。另外操作系统提供了高级语言的编辑，编译功能，让人们可以做出更自定义化的计算机操控程序。更伟大的是计算机中图形界面的使用，让计算机走进了千家万户。</p>
+<p>计算机是人类第三次工业革命的主力，给我们的未来带来了无限的想象空间。但是计算机的思想早在几百年前就产生过萌芽，由于当时的工业的发展落后，甚至还处于启蒙状态，物理材料技术不够支持及时迅速的自动化操作。直到了电学和材料学的深入发展，才让计算机能够落实到具体的形态，以接近光电的速度运行。</p>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                </div>
+                                <div class="post-date">
+                                    2021-02-09
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>

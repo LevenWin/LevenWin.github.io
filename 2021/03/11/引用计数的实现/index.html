@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="引用计数的实现不仅仅开关灯这么简单">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Leven">
+    
+
+    <!-- Title -->
+    
+    <title>引用计数的实现 | Leven</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                引用计数的实现
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <p>引用计数的实现不仅仅开关灯这么简单</p>
+<a id="more"></a>
+
+
+<p>有本iOS开发的经典书籍在介绍引用计数的时候，用了在黑屋里开关灯方式来介绍引用计数的原理。但实际上稍微研究之后，发现实现比这复杂不少。在MRC年代，我们要获取一个对象的所有权的时候，需要retain，引用计数加1。当不再需要这个对象的时候需要release，引用计数减1。在ARC年代，编译器和Runtime，runloop联合起来替我们完成了这些繁琐的操作。</p>
+<h3 id="alloc"><a href="#alloc" class="headerlink" title="alloc"></a>alloc</h3><p>我们先看看对象刚创建的时候，引用计数的初始化。简化后的runtime</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">static __attribute__((always_inline)) </span><br><span class="line">id</span><br><span class="line">_class_createInstanceFromZone(Class cls, size_t extraBytes, void *zone, </span><br><span class="line">                              bool cxxConstruct &#x3D; true, </span><br><span class="line">                              size_t *outAllocatedSize &#x3D; nil)</span><br><span class="line">&#123;</span><br><span class="line">    ....</span><br><span class="line">    size_t size &#x3D; cls-&gt;instanceSize(extraBytes);</span><br><span class="line">    obj &#x3D; (id)calloc(1, size);</span><br><span class="line">    obj-&gt;initIsa(cls, hasCxxDtor);</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">    return obj</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">inline void </span><br><span class="line">objc_object::initIsa(Class cls, bool indexed, bool hasCxxDtor) </span><br><span class="line">&#123; </span><br><span class="line">    assert(!isTaggedPointer()); </span><br><span class="line">    </span><br><span class="line">    if (!indexed) &#123;</span><br><span class="line">        &#x2F;&#x2F; 没有开启指针优化，利用指针的其他位存储信息。因为64位的指针只是存储地址，会有内存浪费。所以64位系统这个默认是开启的。</span><br><span class="line">        isa.cls &#x3D; cls;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        assert(!DisableIndexedIsa);</span><br><span class="line">        isa.bits &#x3D; ISA_MAGIC_VALUE;</span><br><span class="line">        &#x2F;&#x2F; isa.magic is part of ISA_MAGIC_VALUE</span><br><span class="line">        &#x2F;&#x2F; isa.indexed is part of ISA_MAGIC_VALUE</span><br><span class="line">        isa.has_cxx_dtor &#x3D; hasCxxDtor;</span><br><span class="line">        isa.shiftcls &#x3D; (uintptr_t)cls &gt;&gt; 3; &#x2F;&#x2F; 将class地址存进isa的某段位中。</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对象创建的时候，我们没有看见对引用计数有相关操作。难道此时获取retainCount为0吗？，不是，其实为1。因为retainCount的实现方法里有初始加1的操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">inline uintptr_t </span><br><span class="line">objc_object::rootRetainCount()</span><br><span class="line">&#123;</span><br><span class="line">    assert(!UseGC);</span><br><span class="line">    if (isTaggedPointer()) return (uintptr_t)this;</span><br><span class="line"></span><br><span class="line">    sidetable_lock();</span><br><span class="line">    isa_t bits &#x3D; LoadExclusive(&amp;isa.bits);</span><br><span class="line">    if (bits.indexed) &#123;</span><br><span class="line">        uintptr_t rc &#x3D; 1 + bits.extra_rc; &#x2F;&#x2F; 取出引用计数后加了1</span><br><span class="line">        if (bits.has_sidetable_rc) &#123;</span><br><span class="line">            rc +&#x3D; sidetable_getExtraRC_nolock();</span><br><span class="line">        &#125;</span><br><span class="line">        sidetable_unlock();</span><br><span class="line">        return rc;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    sidetable_unlock();</span><br><span class="line">    return sidetable_retainCount();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="retain"><a href="#retain" class="headerlink" title="retain"></a>retain</h3><p>变量的引用计数有一部分存在isa指针中，当isa指针计满的时候，会迁移一半到全局的引用计数side table中</p>
+<p>我们先来看看retain的runtime的源码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">ALWAYS_INLINE id </span><br><span class="line">objc_object::rootRetain(bool tryRetain, bool handleOverflow)</span><br><span class="line">&#123;</span><br><span class="line">    assert(!UseGC);</span><br><span class="line">    &#x2F;&#x2F; 如果是TaggedPointer，则不会进行引用计数处理。直接交由系统当作栈变量释放规则处理</span><br><span class="line">    if (isTaggedPointer()) return (id)this;</span><br><span class="line"></span><br><span class="line">    bool sideTableLocked &#x3D; false;</span><br><span class="line">    bool transcribeToSideTable &#x3D; false; &#x2F;&#x2F; 是否将部分引用计数存在saidetable中</span><br><span class="line"></span><br><span class="line">    isa_t oldisa;</span><br><span class="line">    isa_t newisa;</span><br><span class="line"></span><br><span class="line">    do &#123;</span><br><span class="line">        transcribeToSideTable &#x3D; false;</span><br><span class="line">        &#x2F;&#x2F; 备份下isa.bits</span><br><span class="line">        oldisa &#x3D; LoadExclusive(&amp;isa.bits);</span><br><span class="line">        newisa &#x3D; oldisa;</span><br><span class="line">        &#x2F;&#x2F; 如果是非优化的指针变量，则直接在引用计数的side table处理</span><br><span class="line">        if (!newisa.indexed) goto unindexed;</span><br><span class="line">        &#x2F;&#x2F; don&#39;t check newisa.fast_rr; we already called any RR overrides</span><br><span class="line">        if (tryRetain &amp;&amp; newisa.deallocating) goto tryfail;</span><br><span class="line">        uintptr_t carry;</span><br><span class="line">        &#x2F;&#x2F; 引用计数加一</span><br><span class="line">        newisa.bits &#x3D; addc(newisa.bits, RC_ONE, 0, &amp;carry);  &#x2F;&#x2F; extra_rc++</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; 如果isa中的计数已经存满，则迁移一半到side table中</span><br><span class="line">        if (carry) &#123;</span><br><span class="line">            &#x2F;&#x2F; newisa.extra_rc++ overflowed</span><br><span class="line">            if (!handleOverflow) return rootRetain_overflow(tryRetain);</span><br><span class="line">            &#x2F;&#x2F; Leave half of the retain counts inline and </span><br><span class="line">            &#x2F;&#x2F; prepare to copy the other half to the side table.</span><br><span class="line">            if (!tryRetain &amp;&amp; !sideTableLocked) sidetable_lock();</span><br><span class="line">            sideTableLocked &#x3D; true;</span><br><span class="line">            transcribeToSideTable &#x3D; true;</span><br><span class="line">            newisa.extra_rc &#x3D; RC_HALF; &#x2F;&#x2F; 只留下一半</span><br><span class="line">            newisa.has_sidetable_rc &#x3D; true; &#x2F;&#x2F; 标记利用了side table来进行引用计数</span><br><span class="line">        &#125;</span><br><span class="line">        &#x2F;&#x2F; 刷新isa，失败了再重来</span><br><span class="line">    &#125; while (!StoreExclusive(&amp;isa.bits, oldisa.bits, newisa.bits));</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; 迁移引用计数到side table中</span><br><span class="line">    if (transcribeToSideTable) &#123;</span><br><span class="line">        &#x2F;&#x2F; Copy the other half of the retain counts to the side table.</span><br><span class="line">        sidetable_addExtraRC_nolock(RC_HALF);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (!tryRetain &amp;&amp; sideTableLocked) sidetable_unlock();</span><br><span class="line">    return (id)this;</span><br><span class="line"></span><br><span class="line"> tryfail:</span><br><span class="line">    if (!tryRetain &amp;&amp; sideTableLocked) sidetable_unlock();</span><br><span class="line">    return nil;</span><br><span class="line"></span><br><span class="line"> unindexed:</span><br><span class="line">    if (!tryRetain &amp;&amp; sideTableLocked) sidetable_unlock();</span><br><span class="line">    if (tryRetain) return sidetable_tryRetain() ? (id)this : nil;</span><br><span class="line">    else return sidetable_retain();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以简单看下SideTable的结构.<br>从SideTables的数组结构中通过变量的地址获取到SideTable，再一次通过变量的地址从refcnts获取到变量的引用计数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">struct SideTable &#123;</span><br><span class="line">    spinlock_t slock;</span><br><span class="line">    RefcountMap refcnts;</span><br><span class="line">    weak_table_t weak_table;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="release"><a href="#release" class="headerlink" title="release"></a>release</h3><p>首先会从isa中extra_rc减去1，如果extra_rc为0，则将side table中的引用计数迁移RC_HALF到extra_rc，并且减1。如果迁移失败，意味着side table中关于这个对象的引用数为0，则进行dealloc操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br></pre></td><td class="code"><pre><span class="line">ALWAYS_INLINE bool </span><br><span class="line">objc_object::rootRelease(bool performDealloc, bool handleUnderflow)</span><br><span class="line">&#123;</span><br><span class="line">    assert(!UseGC);</span><br><span class="line">    if (isTaggedPointer()) return false;</span><br><span class="line"></span><br><span class="line">    bool sideTableLocked &#x3D; false;</span><br><span class="line"></span><br><span class="line">    isa_t oldisa;</span><br><span class="line">    isa_t newisa;</span><br><span class="line"></span><br><span class="line"> retry:</span><br><span class="line">    do &#123;</span><br><span class="line">        oldisa &#x3D; LoadExclusive(&amp;isa.bits);</span><br><span class="line">        newisa &#x3D; oldisa;</span><br><span class="line">        if (!newisa.indexed) goto unindexed;</span><br><span class="line">        &#x2F;&#x2F; don&#39;t check newisa.fast_rr; we already called any RR overrides</span><br><span class="line">        uintptr_t carry;</span><br><span class="line">        &#x2F;&#x2F; 引用计数减1</span><br><span class="line">        newisa.bits &#x3D; subc(newisa.bits, RC_ONE, 0, &amp;carry);  &#x2F;&#x2F; extra_rc--</span><br><span class="line">        &#x2F;&#x2F; 如果carry 为1的话，则代表指针里的引用计数已经是0了，无法减1，则到side table中迁移RC_HALF个引用计数</span><br><span class="line">        if (carry) goto underflow;</span><br><span class="line">    &#125; while (!StoreReleaseExclusive(&amp;isa.bits, oldisa.bits, newisa.bits));</span><br><span class="line"></span><br><span class="line">    if (sideTableLocked) sidetable_unlock();</span><br><span class="line">    return false;</span><br><span class="line"></span><br><span class="line"> underflow:</span><br><span class="line">    &#x2F;&#x2F; newisa.extra_rc-- underflowed: borrow from side table or deallocate</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; abandon newisa to undo the decrement</span><br><span class="line">    newisa &#x3D; oldisa;</span><br><span class="line">    &#x2F;&#x2F; 使用了side table引用计数</span><br><span class="line">    if (newisa.has_sidetable_rc) &#123;</span><br><span class="line">        if (!handleUnderflow) &#123;</span><br><span class="line">            return rootRelease_underflow(performDealloc);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; Transfer retain count from side table to inline storage.</span><br><span class="line"></span><br><span class="line">        if (!sideTableLocked) &#123;</span><br><span class="line">            sidetable_lock();</span><br><span class="line">            sideTableLocked &#x3D; true;</span><br><span class="line">            if (!isa.indexed) &#123;</span><br><span class="line">                &#x2F;&#x2F; Lost a race vs the indexed -&gt; not indexed transition</span><br><span class="line">                &#x2F;&#x2F; before we got the side table lock. Stop now to avoid </span><br><span class="line">                &#x2F;&#x2F; breaking the safety checks in the sidetable ExtraRC code.</span><br><span class="line">                goto unindexed;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; Try to remove some retain counts from the side table.   </span><br><span class="line">        &#x2F;&#x2F; 从side table中借引用计数个数，如果不存在这个变量的引用计数或者引用计数为0了，则borrwoed为0，否则为 RC_HALF    </span><br><span class="line">        size_t borrowed &#x3D; sidetable_subExtraRC_nolock(RC_HALF);</span><br><span class="line"></span><br><span class="line">        &#x2F;&#x2F; To avoid races, has_sidetable_rc must remain set </span><br><span class="line">        &#x2F;&#x2F; even if the side table count is now zero.</span><br><span class="line">        &#x2F;&#x2F; 还有引用计数可以减1，否则后面会走到dealloc</span><br><span class="line">        if (borrowed &gt; 0) &#123;</span><br><span class="line">            &#x2F;&#x2F; Side table retain count decreased.</span><br><span class="line">            &#x2F;&#x2F; Try to add them to the inline count.</span><br><span class="line">            &#x2F;&#x2F; 做减一操作后，保存到isa中</span><br><span class="line">            newisa.extra_rc &#x3D; borrowed - 1;  &#x2F;&#x2F; redo the original decrement too</span><br><span class="line">            &#x2F;&#x2F; 刷新isa</span><br><span class="line">            bool stored &#x3D; StoreExclusive(&amp;isa.bits, oldisa.bits, newisa.bits);</span><br><span class="line">            &#x2F;&#x2F; 刷新失败重试</span><br><span class="line">            if (!stored) &#123;</span><br><span class="line">                &#x2F;&#x2F; Inline update failed. </span><br><span class="line">                &#x2F;&#x2F; Try it again right now. This prevents livelock on LL&#x2F;SC </span><br><span class="line">                &#x2F;&#x2F; architectures where the side table access itself may have </span><br><span class="line">                &#x2F;&#x2F; dropped the reservation.</span><br><span class="line">                isa_t oldisa2 &#x3D; LoadExclusive(&amp;isa.bits);</span><br><span class="line">                isa_t newisa2 &#x3D; oldisa2;</span><br><span class="line">                if (newisa2.indexed) &#123;</span><br><span class="line">                    uintptr_t overflow;</span><br><span class="line">                    newisa2.bits &#x3D; </span><br><span class="line">                        addc(newisa2.bits, RC_ONE * (borrowed-1), 0, &amp;overflow);</span><br><span class="line">                    if (!overflow) &#123;</span><br><span class="line">                        stored &#x3D; StoreReleaseExclusive(&amp;isa.bits, oldisa2.bits, </span><br><span class="line">                                                       newisa2.bits);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            if (!stored) &#123;</span><br><span class="line">                &#x2F;&#x2F; Inline update failed.</span><br><span class="line">                &#x2F;&#x2F; Put the retains back in the side table.</span><br><span class="line">                sidetable_addExtraRC_nolock(borrowed);</span><br><span class="line">                goto retry;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            &#x2F;&#x2F; Decrement successful after borrowing from side table.</span><br><span class="line">            &#x2F;&#x2F; This decrement cannot be the deallocating decrement - the side </span><br><span class="line">            &#x2F;&#x2F; table lock and has_sidetable_rc bit ensure that if everyone </span><br><span class="line">            &#x2F;&#x2F; else tried to -release while we worked, the last one would block.</span><br><span class="line">            sidetable_unlock();</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">        else &#123;</span><br><span class="line">            &#x2F;&#x2F; Side table is empty after all. Fall-through to the dealloc path.</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Really deallocate.</span><br><span class="line"></span><br><span class="line">    if (sideTableLocked) sidetable_unlock();</span><br><span class="line"></span><br><span class="line">    if (newisa.deallocating) &#123;</span><br><span class="line">        return overrelease_error();</span><br><span class="line">    &#125;</span><br><span class="line">    newisa.deallocating &#x3D; true;</span><br><span class="line">    if (!StoreExclusive(&amp;isa.bits, oldisa.bits, newisa.bits)) goto retry;</span><br><span class="line">    __sync_synchronize();</span><br><span class="line">    &#x2F;&#x2F; 发现没有引用计数可以减1了，则进行dealloc操作</span><br><span class="line">    if (performDealloc) &#123;</span><br><span class="line">        ((void(*)(objc_object *, SEL))objc_msgSend)(this, SEL_dealloc);</span><br><span class="line">    &#125;</span><br><span class="line">    return true;</span><br><span class="line"></span><br><span class="line"> unindexed:</span><br><span class="line">    if (sideTableLocked) sidetable_unlock();</span><br><span class="line">    return sidetable_release(performDealloc);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>之前发现变量relase之前，引用计数还是1，以为是发现要dealloc的时候，不再多此一举的去修改引用计数（<a target="_blank" rel="noopener" href="https://blog.devtang.com/2016/07/30/ios-memory-management/">唐巧文章</a>）。研究源码看下其实内存中的引用计数已经为0了，只是当你去获取retainCount的时候，默认会加一个1.</p>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                        
+
+<a href="/tags/iOS内存管理/">#iOS内存管理</a>
+
+
+                                            
+                                </div>
+                                <div class="post-date">
+                                    2021-03-11
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>

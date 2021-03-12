@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="当你在我的怀抱里，我将你铭刻在心。">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Leven">
+    
+
+    <!-- Title -->
+    
+    <title>AutoreleasePool 原理分析 | Leven</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                AutoreleasePool 原理分析
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <p>当你在我的怀抱里，我将你铭刻在心。</p>
+<a id="more"></a>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>AutoRelease Pool是一种延迟的内存管理机制。编译器会在某些变量生成或被引用的地方把这个变量加入到自动释放池当中，一般会在Runloop before-waiting和exit的状态时进行释放。</p>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><p>来看几段核心的源码。</p>
+<h3 id="AutoreleasePoolPage"><a href="#AutoreleasePoolPage" class="headerlink" title="AutoreleasePoolPage"></a>AutoreleasePoolPage</h3><p>Autorelease pool由多个AutoreleasePoolPage相互的双链表构成</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">class AutoreleasePoolPage </span><br><span class="line">&#123; </span><br><span class="line">#   define POOL_BOUNDARY nil    &#x2F;&#x2F;哨兵对象(可以看做是一个边界)</span><br><span class="line">    static size_t const COUNT &#x3D; SIZE &#x2F; sizeof(id);    &#x2F;&#x2F; 对象数量</span><br><span class="line"></span><br><span class="line">    magic_t const magic;    &#x2F;&#x2F;用来校验 &#96;AutoreleasePoolPage&#96;的结构是否完整；</span><br><span class="line">    id *next;    &#x2F;&#x2F;指向最新添加的 &#96;autoreleased&#96; 对象的下一个位置，初始化时指向 &#96;begin()&#96; ；</span><br><span class="line">    pthread_t const thread;    &#x2F;&#x2F;指向当前线程；</span><br><span class="line">    AutoreleasePoolPage * const parent;    &#x2F;&#x2F;指向父结点，第一个结点的 &#96;parent&#96; 值为 &#96;nil&#96; ；</span><br><span class="line">    AutoreleasePoolPage *child;    &#x2F;&#x2F;指向子结点，最后一个结点的 &#96;child&#96; 值为 &#96;nil&#96; ；</span><br><span class="line">    uint32_t const depth;    &#x2F;&#x2F;代表深度，从 &#96;0&#96; 开始，往后递增 &#96;1&#96;；</span><br><span class="line">    uint32_t hiwat;    &#x2F;&#x2F;代表 &#96;high water mark&#96; ;</span><br><span class="line">&#x2F;&#x2F;剩下代码省略......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个page都会占据4096字节的内存。除了捕获的变量的地址内存外，其他固定占据的内存大小是56字节。其他的4040字节都用来储存变量地址，一个变量指针为8字节，可以记录505个变量。POOL_BOUNDARY这个会在每次新生成page的时候塞进去作为下次释放的边界<br><br>当变量通过调用<code>autorelease</code>方法的时候，最终会走到<code>AutoreleasePoolPage::autoreleaseFast((id)this);</code> ，下面是源码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">static inline id *autoreleaseFast(id obj)</span><br><span class="line">&#123;</span><br><span class="line">    &#x2F;&#x2F; 获取当前的顶端page</span><br><span class="line">    AutoreleasePoolPage *page &#x3D; hotPage();</span><br><span class="line">    if (page &amp;&amp; !page-&gt;full()) &#123;</span><br><span class="line">        &#x2F;&#x2F; page没有满足，则直接加进去</span><br><span class="line">        return page-&gt;add(obj);</span><br><span class="line">    &#125; else if (page) &#123;</span><br><span class="line">        &#x2F;&#x2F; page满了，则新生成一个page</span><br><span class="line">        return autoreleaseFullPage(obj, page);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        &#x2F;&#x2F; 没有page，则生成第一个page</span><br><span class="line">        return autoreleaseNoPage(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>先来看看第一次使用page的场景，这时会走到下面的方法.先创建page，然后将哨兵对象塞进去。然后将对象记录下来。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">static __attribute__((noinline))</span><br><span class="line">id *autoreleaseNoPage(id obj)</span><br><span class="line">&#123;</span><br><span class="line">    &#x2F;&#x2F; No pool in place.</span><br><span class="line">    assert(!hotPage());</span><br><span class="line"></span><br><span class="line">    if (obj !&#x3D; POOL_SENTINEL  &amp;&amp;  DebugMissingPools) &#123;</span><br><span class="line">        &#x2F;&#x2F; We are pushing an object with no pool in place, </span><br><span class="line">        &#x2F;&#x2F; and no-pool debugging was requested by environment.</span><br><span class="line">        _objc_inform(&quot;MISSING POOLS: Object %p of class %s &quot;</span><br><span class="line">                     &quot;autoreleased with no pool in place - &quot;</span><br><span class="line">                     &quot;just leaking - break on &quot;</span><br><span class="line">                     &quot;objc_autoreleaseNoPool() to debug&quot;, </span><br><span class="line">                     (void*)obj, object_getClassName(obj));</span><br><span class="line">        objc_autoreleaseNoPool(obj);</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Install the first page.</span><br><span class="line">    AutoreleasePoolPage *page &#x3D; new AutoreleasePoolPage(nil);</span><br><span class="line">    setHotPage(page);</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Push an autorelease pool boundary if it wasn&#39;t already requested.</span><br><span class="line">    if (obj !&#x3D; POOL_SENTINEL) &#123;</span><br><span class="line">        page-&gt;add(POOL_SENTINEL);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; Push the requested object.</span><br><span class="line">    return page-&gt;add(obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将对象添加到自动释放池中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">static inline AutoreleasePoolPage *hotPage() </span><br><span class="line">&#123;</span><br><span class="line">    &#x2F;&#x2F; 从tls看出来pool是与线程绑定的</span><br><span class="line">    AutoreleasePoolPage *result &#x3D; (AutoreleasePoolPage *)</span><br><span class="line">        tls_get_direct(key);</span><br><span class="line">    if (result) result-&gt;fastcheck();</span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">id *add(id obj)</span><br><span class="line">&#123;</span><br><span class="line">    assert(!full());</span><br><span class="line">    unprotect();</span><br><span class="line">    &#x2F;&#x2F; 记录本地应该记录obj地址的地方。</span><br><span class="line">    id *ret &#x3D; next;  &#x2F;&#x2F; faster than &#96;return next-1&#96; because of aliasing</span><br><span class="line">    *next++ &#x3D; obj;</span><br><span class="line">    protect();</span><br><span class="line">    return ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果碰到自动释放池满的情况，就新创建一个page。并标记为hotPage，随后添加变量next地址中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">static __attribute__((noinline))</span><br><span class="line">id *autoreleaseFullPage(id obj, AutoreleasePoolPage *page)</span><br><span class="line">&#123;</span><br><span class="line">    &#x2F;&#x2F; The hot page is full. </span><br><span class="line">    &#x2F;&#x2F; Step to the next non-full page, adding a new page if necessary.</span><br><span class="line">    &#x2F;&#x2F; Then add the object to that page.</span><br><span class="line">    assert(page &#x3D;&#x3D; hotPage());</span><br><span class="line">    assert(page-&gt;full()  ||  DebugPoolAllocation);</span><br><span class="line"></span><br><span class="line">    do &#123;</span><br><span class="line">        if (page-&gt;child) page &#x3D; page-&gt;child;</span><br><span class="line">        else page &#x3D; new AutoreleasePoolPage(page);</span><br><span class="line">    &#125; while (page-&gt;full());</span><br><span class="line"></span><br><span class="line">    setHotPage(page);</span><br><span class="line">    return page-&gt;add(obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="push-And-Pop"><a href="#push-And-Pop" class="headerlink" title="push And Pop"></a>push And Pop</h3><p>创建自动释放池的时候，首先会掉用<code>push</code>方法将一个<code>POOL_BOUNDARY</code>入栈，并返回它的地址。当需要自动释放池里的对象时，会调用pop，传入一个<code>POOL_BOUNDARY</code>。从记录的对象中一个个取出，并且调用release，直到遇到了<code>POOL_BOUNDARY</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">static inline void *push() </span><br><span class="line">&#123;</span><br><span class="line">    id *dest;</span><br><span class="line">    if (DebugPoolAllocation) &#123; &#x2F;&#x2F; 出错时进入调试状态</span><br><span class="line">        &#x2F;&#x2F; Each autorelease pool starts on a new pool page.</span><br><span class="line">        dest &#x3D; autoreleaseNewPage(POOL_BOUNDARY);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        dest &#x3D; autoreleaseFast(POOL_BOUNDARY);  &#x2F;&#x2F; 传入 POOL_BOUNDARY 哨兵对象</span><br><span class="line">    &#125;</span><br><span class="line">    assert(dest &#x3D;&#x3D; EMPTY_POOL_PLACEHOLDER || *dest &#x3D;&#x3D; POOL_BOUNDARY);</span><br><span class="line">    return dest;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>pop的时候比较复杂。释放page中的变量，如果page为空，则释放该page</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">static inline void pop(void *token) </span><br><span class="line">&#123;</span><br><span class="line">    AutoreleasePoolPage *page;</span><br><span class="line">    id *stop;</span><br><span class="line"></span><br><span class="line">    page &#x3D; pageForPointer(token);</span><br><span class="line">    stop &#x3D; (id *)token;</span><br><span class="line">    if (DebugPoolAllocation  &amp;&amp;  *stop !&#x3D; POOL_SENTINEL) &#123;</span><br><span class="line">        &#x2F;&#x2F; This check is not valid with DebugPoolAllocation off</span><br><span class="line">        &#x2F;&#x2F; after an autorelease with a pool page but no pool in place.</span><br><span class="line">        _objc_fatal(&quot;invalid or prematurely-freed autorelease pool %p; &quot;, </span><br><span class="line">                    token);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (PrintPoolHiwat) printHiwat();</span><br><span class="line"></span><br><span class="line">    page-&gt;releaseUntil(stop);</span><br><span class="line"></span><br><span class="line">    &#x2F;&#x2F; memory: delete empty children</span><br><span class="line">    if (DebugPoolAllocation  &amp;&amp;  page-&gt;empty()) &#123;</span><br><span class="line">        &#x2F;&#x2F; special case: delete everything during page-per-pool debugging</span><br><span class="line">        AutoreleasePoolPage *parent &#x3D; page-&gt;parent;</span><br><span class="line">        page-&gt;kill();</span><br><span class="line">        setHotPage(parent);</span><br><span class="line">    &#125; else if (DebugMissingPools  &amp;&amp;  page-&gt;empty()  &amp;&amp;  !page-&gt;parent) &#123;</span><br><span class="line">        &#x2F;&#x2F; special case: delete everything for pop(top) </span><br><span class="line">        &#x2F;&#x2F; when debugging missing autorelease pools</span><br><span class="line">        page-&gt;kill();</span><br><span class="line">        setHotPage(nil);</span><br><span class="line">    &#125; </span><br><span class="line">    else if (page-&gt;child) &#123;</span><br><span class="line">        &#x2F;&#x2F; hysteresis: keep one empty child if page is more than half full</span><br><span class="line">        &#x2F;&#x2F; 为什么这么做呢？什么时候会碰到这种情况？我也不清楚</span><br><span class="line">        if (page-&gt;lessThanHalfFull()) &#123;</span><br><span class="line">            page-&gt;child-&gt;kill();</span><br><span class="line">        &#125;</span><br><span class="line">        else if (page-&gt;child-&gt;child) &#123;</span><br><span class="line">            page-&gt;child-&gt;child-&gt;kill();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>AppKit 和 UIKit 框架在事件循环(RunLoop)的每次循环开始时，在主线程创建一个自动释放池，并在每次循环结束时销毁它，在销毁时释放自动释放池中的所有autorelease对象。通常情况下我们不需要手动创建自动释放池，但是如果我们在循环中创建了很多临时的autorelease对象，则手动创建自动释放池来管理这些对象可以很大程度地减少内存峰值。<br><img src="/images/20210311/6.png" alt=""><br>由于app的运行几乎都是在回调方法中。每个回调方法之前，系统都自动创建了一个autorelease pool包围了该回回调里的变量。回调执行完后。autorelease 就会调用pop操作释放回调里产生的临时变量。<br></p>
+<p>我们可以把下面的代码clang 重写下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, const char * argv[]) &#123;</span><br><span class="line">    @autoreleasepool &#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 用clang -rewrite-objc main.m 转换为C++</span><br><span class="line">struct __AtAutoreleasePool &#123;</span><br><span class="line">    __AtAutoreleasePool() &#123;</span><br><span class="line">        atautoreleasepoolobj &#x3D; objc_autoreleasePoolPush();</span><br><span class="line">    &#125;</span><br><span class="line">    &#x2F;&#x2F; 析构方法回调用pop，释放autorelease pool</span><br><span class="line">    ~__AtAutoreleasePool() &#123;</span><br><span class="line">        objc_autoreleasePoolPop(atautoreleasepoolobj);</span><br><span class="line">    &#125;</span><br><span class="line">    void * atautoreleasepoolobj;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int main(int argc, const char * argv[]) &#123;</span><br><span class="line">    &#x2F;* @autoreleasepool *&#x2F; </span><br><span class="line">    &#123; </span><br><span class="line">        __AtAutoreleasePool __autoreleasepool;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="减小内存峰值"><a href="#减小内存峰值" class="headerlink" title="减小内存峰值"></a>减小内存峰值</h3><p>如果循环里需要重复创建很多变量，可以利用autorelease pool大幅减小内存峰值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">for (int i &#x3D; 0; i &lt; 100000000; i ++) &#123;</span><br><span class="line">    @autoreleasepool &#123;</span><br><span class="line">        NSString * str &#x3D; [NSString stringWithFormat:@&quot;AutoReleasePool&quot;];</span><br><span class="line">        NSString *tempstr &#x3D; str;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="嵌套的pool"><a href="#嵌套的pool" class="headerlink" title="嵌套的pool"></a>嵌套的pool</h3><p>autorelease pool可以嵌套，每次创建新的pool，则push一个新的page。当作用域除了这个pool的时候则会pop操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, const char * argv[]) &#123;</span><br><span class="line">    @autoreleasepool &#123; &#x2F;&#x2F;r1 &#x3D; push()</span><br><span class="line">        for (int i &#x3D; 0; i &lt; 600; i++) &#123;</span><br><span class="line">            HTPerson *p &#x3D; [[[HTPerson alloc] init] autorelease];</span><br><span class="line">        &#125;</span><br><span class="line">        @autoreleasepool &#123; &#x2F;&#x2F;r2 &#x3D; push()</span><br><span class="line">            for (int i &#x3D; 0; i &lt; 500; i++) &#123;</span><br><span class="line">                HTPerson *p &#x3D; [[[HTPerson alloc] init] autorelease];</span><br><span class="line">            &#125;</span><br><span class="line">            @autoreleasepool &#123; &#x2F;&#x2F;r3 &#x3D; push()</span><br><span class="line">                for (int i &#x3D; 0; i &lt; 200; i++) &#123;</span><br><span class="line">                    HTPerson *p &#x3D; [[[HTPerson alloc] init] autorelease];</span><br><span class="line">                &#125;</span><br><span class="line">                _objc_autoreleasePoolPrint();</span><br><span class="line">            &#125; &#x2F;&#x2F;pop(r3)</span><br><span class="line">        &#125; &#x2F;&#x2F;pop(r2)</span><br><span class="line">    &#125; &#x2F;&#x2F;pop(r1)</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>哪些对象会被放置到AutoRelease Pool中？<br>不是通过 <code>alloc/new/copy/mutableCopy</code>初始化的变量，通过<code>__autorealeasing</code>修饰的变量</li>
+<li>子线程的AutoRelease Pool什么时候创建和释放？<br>如果子线程没有开启Runloop，则会在出了Pool作用域时候或者线程释放的时候。如果开启了Runloop，不仅前两者会释放，还会在before-waiting和exit的时候。</li>
+</ol>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                        
+
+<a href="/tags/内存管理/">#内存管理</a>
+
+
+                                            
+                                </div>
+                                <div class="post-date">
+                                    2021-03-12
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>

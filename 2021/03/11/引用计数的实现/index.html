@@ -104,6 +104,11 @@
 <p>既然指针没有有效的isa指针了，那taggedPointer对象如果执行方法的调用的呢？</p>
 </blockquote>
 <p>在taggerPoniter指针中，有标识为标记该数据属于哪个类。这些类的地址存在一个全局的数组方中。知道了所数类的地址后，就可以走方法调用了。相关方法是<code>objc_tag_index_t</code>,<code>_objc_getTaggedPointerTag</code>, <code>classSlotForTagIndex</code></p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6872655753174810631#heading-13">https://juejin.cn/post/6872655753174810631#heading-13</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903767003889678">https://juejin.cn/post/6844903767003889678</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903939985391629">https://juejin.cn/post/6844903939985391629</a></li>
+</ul>
 
 
                             <!-- Meta -->

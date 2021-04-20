@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="把大象装进冰箱">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Leven">
+    
+
+    <!-- Title -->
+    
+    <title>透视HTTP-分块 | Leven</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                透视HTTP-分块
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <p>把大象装进冰箱</p>
+<a id="more"></a>
+<p>在互联网带宽有限的情况下，HTTP支持通过数据压缩，分块传输，范围请求，多段数据等方式提高传输的效率</p>
+<h2 id="数据压缩"><a href="#数据压缩" class="headerlink" title="数据压缩"></a>数据压缩</h2><p>浏览器请求的时候会带上<code>Accept-Encoding</code>头字段，里面是浏览器支持的压缩算法，例如gzip，deflate，br等，这样服务器可以选择一种压缩算法放到<code>Content-Encoding</code>中，并将原数据压缩后返回给浏览器</p>
+<h2 id="分块传输"><a href="#分块传输" class="headerlink" title="分块传输"></a>分块传输</h2><p>服务器传输大文件给浏览器的时候，采用化整为零的思想，利用<code>chunked</code>分块传输。在响应<br>报文用头字段<code>Transfer-Encoding：chunked</code>来表示。<br><code>Transfer-Encoding：chunked</code>和<code>Content-Length</code>这两个字段是互斥的，不能同时出现。既然分段了就不会传输内容长度。编码规则如下：<br><img src="/images/http/trunked.png" alt=""></p>
+<h2 id="范围请求"><a href="#范围请求" class="headerlink" title="范围请求"></a>范围请求</h2><p>范围请求允许客户端在请求的时候使用专用字段来表示只获取文件的一部分。范围请求不是web服务器必备的功能。所以服务器在响应使用字段<code>Accpet-Ranges：bytes</code>来表示支持范围请求。客户端在请求头里加上<code>Range：byte=0-31</code>代表获取文件的前32个字节。服务器返回的code是206，Partial Content。代表body只是原数据的一部分。<code>Content-Range：0-31/96</code> 96代表的是文件的总长度。断点下载和断点续传都是基于这个实现的。</p>
+<h2 id="多端数据"><a href="#多端数据" class="headerlink" title="多端数据"></a>多端数据</h2><p>范围请求一次只能请求一个片段。其实也可以在Range里添加多个<code>x-y</code>来一次性获取多个片段数据<br>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;16-2 HTTP&#x2F;1.1</span><br><span class="line">Host: www.chrono.com</span><br><span class="line">Range: bytes&#x3D;0-9, 20-29</span><br></pre></td></tr></table></figure>
+<p>得到的response为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">HTTP&#x2F;1.1 206 Partial Content</span><br><span class="line">Content-Type: multipart&#x2F;byteranges; boundary&#x3D;00000000001</span><br><span class="line">Content-Length: 189</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Accept-Ranges: bytes</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">--00000000001</span><br><span class="line">Content-Type: text&#x2F;plain</span><br><span class="line">Content-Range: bytes 0-9&#x2F;96</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; this is</span><br><span class="line">--00000000001</span><br><span class="line">Content-Type: text&#x2F;plain</span><br><span class="line">Content-Range: bytes 20-29&#x2F;96</span><br><span class="line"></span><br><span class="line">ext json d</span><br><span class="line">--00000000001--</span><br></pre></td></tr></table></figure>
+<p>注意Response里的<code>Content-Type：multipart/byteranges；boundary=00000000001</code></p>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                        
+
+<a href="/tags/http/">#http</a>
+
+
+                                            
+                                </div>
+                                <div class="post-date">
+                                    2021-04-20
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>

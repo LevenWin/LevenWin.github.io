@@ -9,7 +9,7 @@
 
     <!--Description-->
     
-        <meta name="description" content="把大象装进冰箱">
+        <meta name="description" content="HTTP的连接管理">
     
 
     <!--Author-->
@@ -19,7 +19,7 @@
 
     <!-- Title -->
     
-    <title>透视HTTP-分块 | Leven</title>
+    <title>透视HTTP-连接 | Leven</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
@@ -63,7 +63,7 @@
                     <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                         <div class="post-heading">
                             <h1>
-                                透视HTTP-分块
+                                透视HTTP-连接
                             </h1>
                         </div>
                     </div>
@@ -77,17 +77,18 @@
                 <div class="row">
                     <!-- Post Main Content -->
                     <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                        <p>把大象装进冰箱</p>
+                        <p>HTTP的连接管理</p>
 <a id="more"></a>
-<p>在互联网带宽有限的情况下，HTTP支持通过数据压缩，分块传输，范围请求，多段数据等方式提高传输的效率</p>
-<h2 id="数据压缩"><a href="#数据压缩" class="headerlink" title="数据压缩"></a>数据压缩</h2><p>浏览器请求的时候会带上<code>Accept-Encoding</code>头字段，里面是浏览器支持的压缩算法，例如gzip，deflate，br等，这样服务器可以选择一种压缩算法放到<code>Content-Encoding</code>中，并将原数据压缩后返回给浏览器</p>
-<h2 id="分块传输"><a href="#分块传输" class="headerlink" title="分块传输"></a>分块传输</h2><p>服务器传输大文件给浏览器的时候，采用化整为零的思想，利用<code>chunked</code>分块传输。在响应<br>报文用头字段<code>Transfer-Encoding：chunked</code>来表示。<br><code>Transfer-Encoding：chunked</code>和<code>Content-Length</code>这两个字段是互斥的，不能同时出现。既然分段了就不会传输内容长度。编码规则如下：<br><img src="/images/http/trunked.png" alt=""></p>
-<h2 id="范围请求"><a href="#范围请求" class="headerlink" title="范围请求"></a>范围请求</h2><p>范围请求允许客户端在请求的时候使用专用字段来表示只获取文件的一部分。范围请求不是web服务器必备的功能。所以服务器在响应使用字段<code>Accpet-Ranges：bytes</code>来表示支持范围请求。客户端在请求头里加上<code>Range：byte=0-31</code>代表获取文件的前32个字节。服务器返回的code是206，Partial Content。代表body只是原数据的一部分。<code>Content-Range：0-31/96</code> 96代表的是文件的总长度。断点下载和断点续传都是基于这个实现的。</p>
-<h2 id="多段数据"><a href="#多段数据" class="headerlink" title="多段数据"></a>多段数据</h2><p>范围请求一次只能请求一个片段。其实也可以在Range里添加多个<code>x-y</code>来一次性获取多个片段数据<br>例如：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET &#x2F;16-2 HTTP&#x2F;1.1</span><br><span class="line">Host: www.chrono.com</span><br><span class="line">Range: bytes&#x3D;0-9, 20-29</span><br></pre></td></tr></table></figure>
-<p>得到的response为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">HTTP&#x2F;1.1 206 Partial Content</span><br><span class="line">Content-Type: multipart&#x2F;byteranges; boundary&#x3D;00000000001</span><br><span class="line">Content-Length: 189</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Accept-Ranges: bytes</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">--00000000001</span><br><span class="line">Content-Type: text&#x2F;plain</span><br><span class="line">Content-Range: bytes 0-9&#x2F;96</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; this is</span><br><span class="line">--00000000001</span><br><span class="line">Content-Type: text&#x2F;plain</span><br><span class="line">Content-Range: bytes 20-29&#x2F;96</span><br><span class="line"></span><br><span class="line">ext json d</span><br><span class="line">--00000000001--</span><br></pre></td></tr></table></figure>
-<p>注意Response里的<code>Content-Type：multipart/byteranges；boundary=00000000001</code></p>
+
+<h2 id="短连接"><a href="#短连接" class="headerlink" title="短连接"></a>短连接</h2><p>最初的0.9/1.0的协议非常简单，采用简单的请求和应答方式。早期都是短链接的模式。但是短连接的缺点相当严重。因为在TCP中建立连接要先经历3次握手。需要1.5RTT，关闭时四次挥手，2个RTT。中间数据传输假设有2个RTT。忽略掉服务器的代码执行时间，传输效率只有4/11。绝大部分时间都被浪费在握手和挥手过程中了。<br><img src="/images/http/shake.png" alt=""></p>
+<h2 id="长连接"><a href="#长连接" class="headerlink" title="长连接"></a>长连接</h2><p>长连接复用了上一次握手后的通道。虽然不能改善TCP的连接效率，但是整体提升了数据的传输效率。<br><img src="/images/http/connect.png" alt=""></p>
+<h2 id="相关头字段"><a href="#相关头字段" class="headerlink" title="相关头字段"></a>相关头字段</h2><p>如果服务器支持长连接，会在响应报文里添加<code>Connection:keep-alive</code>，在客户端可以在请求头放置<code>Connection:close</code>告诉服务器关闭长连接。另外服务器也可以有自己的策略去处理长连接。例如</p>
+<ol>
+<li><code>keepalive_timeout</code> 设置长连接的超时时间</li>
+<li><code>keepalive_requests</code> 设置长连接可发送的最大请求次数</li>
+</ol>
+<h2 id="对头阻塞"><a href="#对头阻塞" class="headerlink" title="对头阻塞"></a>对头阻塞</h2><p>由于HTTP是基于请求-应答的模式，这就形成了一个先进先出的串行队列。如果先入队的请求阻塞了。后续的请求就会等待，而不能返回。<br><img src="/images/http/series.png" alt=""></p>
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><p>采用并发连接，也就是对同一个服务器发起多个长连接。用数量来解决质量问题。但是如果<br>被第三方来恶意攻击的话，就会造成服务器拒绝服务。所以一般服务器只支持6～8个并发连接。<br>另外还有<code>域名分片</code>的技术用来提升长连接个数。同时开几个域名指向同一个服务器。</p>
 
 
                             <!-- Meta -->

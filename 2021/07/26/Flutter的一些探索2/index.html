@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="0-1，更安全的订阅">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Leven">
+    
+
+    <!-- Title -->
+    
+    <title>Flutter的一些探索2 | Leven</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                Flutter的一些探索2
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <p>0-1，更安全的订阅</p>
+<a id="more"></a>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="markdown">State</span></span></span><br><span class="line">eventBus.<span class="keyword">on</span>&lt;EventFn&gt;().listen((event) &#123;</span><br><span class="line">	<span class="comment">// do something</span></span><br><span class="line">	setState(&#123;</span><br><span class="line">		<span class="comment">///<span class="markdown">...</span></span></span><br><span class="line">	&#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>页面pop掉后，element执行dispose，state状态被设为defunct。但是没有从eventBus里移除监听。导致再次触发监听回调的时候调用了setState。此时报了Error错误。</p>
+<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="markdown">State</span></span></span><br><span class="line"><span class="keyword">var</span> subscribe = eventBus.<span class="keyword">on</span>&lt;EventFn&gt;().listen((event) &#123;</span><br><span class="line">	<span class="comment">// do something</span></span><br><span class="line">	setState(&#123;</span><br><span class="line">		<span class="comment">///<span class="markdown">...</span></span></span><br><span class="line">	&#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">dispose()&#123;</span><br><span class="line">	**subscribe.cancel();**</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>需要手动取消订阅</strong></p>
+<p>定义subscribe变量，新增dispose方法，并且调用subscribe.cancel()</p>
+<p><img src="/images/Flutter%E7%9A%84%E4%B8%80%E4%BA%9B%E6%8E%A2%E7%B4%A22/Untitled.png" alt="Flutter的一些探索2/Untitled.png"></p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>有自动移除的subscribe订阅吗？</p>
+<p>通过某种方式<strong>知晓element dispose</strong>，并移除相关的subscribe。</p>
+<h2 id="尝试"><a href="#尝试" class="headerlink" title="尝试"></a>尝试</h2><h3 id="Parent-Element"><a href="#Parent-Element" class="headerlink" title="Parent Element"></a>Parent Element</h3><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_ElementUnmountObserveElement</span> <span class="keyword">extends</span> <span class="title">StatelessElement</span> </span>&#123;</span><br><span class="line">  _ElementUnmountObserveElement(Widget widget) : <span class="keyword">super</span>(widget);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">Element</span> observedElement;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  ElementUnmountObserveWidget <span class="keyword">get</span> widget =&gt; <span class="keyword">super</span>.widget <span class="keyword">as</span> ElementUnmountObserveWidget;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> unmount() &#123;</span><br><span class="line">		<span class="comment">// 触发unmount的回调</span></span><br><span class="line">    <span class="keyword">this</span>.widget.observer.willUnmount(element: observedElement);</span><br><span class="line">    <span class="keyword">super</span>.unmount();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> mount(<span class="built_in">Element</span> parent, <span class="built_in">Object</span> newSlot) &#123;</span><br><span class="line">    <span class="keyword">super</span>.mount(parent, newSlot);</span><br><span class="line">    observedElement = parent;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/// <span class="markdown">全局的监听Element unmount的类</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GlobalElementUnmountObserver</span> <span class="keyword">implements</span> <span class="title">ElementUnmountObserver</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> GlobalElementUnmountObserver instance = GlobalElementUnmountObserver();</span><br><span class="line"></span><br><span class="line">  <span class="built_in">List</span>&lt;ElementUnmountObserver&gt; _observers = [];</span><br><span class="line">  <span class="keyword">static</span> addObserver(ElementUnmountObserver observer) &#123;</span><br><span class="line">    instance._observers.add(observer);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> removeObserver(ElementUnmountObserver observer) &#123;</span><br><span class="line">    instance._observers.remove(observer);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  willUnmount(&#123;<span class="built_in">Element</span> element&#125;) &#123;</span><br><span class="line">    _observers.forEach((v) &#123;</span><br><span class="line">      v.willUnmount(element: element);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 封装简洁的使用接口</span></span><br><span class="line"><span class="keyword">extension</span> BindMonitor <span class="keyword">on</span> Widget &#123;</span><br><span class="line">  ElementUnmountObserveWidget bindGlobalObserver() &#123;</span><br><span class="line">    <span class="keyword">return</span> ElementUnmountObserveWidget(</span><br><span class="line">      builder: (context) =&gt; <span class="keyword">this</span>,</span><br><span class="line">      observer: GlobalElementUnmountObserver.instance,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p> 使用方法</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> ChangeNotifierProvider&lt;YTTDriverInfoViewModel&gt;.value(</span><br><span class="line">      value: viewModel,</span><br><span class="line">      child: Consumer&lt;YTTDriverInfoViewModel&gt;(builder: (context, model, child) &#123;</span><br><span class="line">        <span class="keyword">return</span> Scaffold(</span><br><span class="line">          appBar: CommonAppBar(</span><br><span class="line">            title: <span class="string">&#x27;个人信息&#x27;</span>,</span><br><span class="line">            action: _createAppbarAction(viewModel),</span><br><span class="line">            elevationHeight: <span class="number">0</span>,</span><br><span class="line">          ),</span><br><span class="line">          backgroundColor: Color(<span class="number">0xFFF5F5F5</span>),</span><br><span class="line">          body: _createUI(model),</span><br><span class="line">        );</span><br><span class="line">      &#125;),</span><br><span class="line">    ).bindGlobalObserver();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>需要在State的build方法里添加<code>bindGlobalObserver()</code></p>
+<p><img src="/images/Flutter%E7%9A%84%E4%B8%80%E4%BA%9B%E6%8E%A2%E7%B4%A22/522BFD4A1B8B268765F87E28275E1905.gif" alt="iOS%E5%BC%80%E5%8F%91%E5%88%B0Flutter%E5%BC%80%E5%8F%91%E7%9A%84%E6%91%B8%E7%B4%A2%20e03e8f81c9d045c49eac8ecb8f1152c9/522BFD4A1B8B268765F87E28275E1905.gif"></p>
+<p>还是要修改业务的代码，具有侵入性。</p>
+<p>State说：我连dispose都不想改动，还想让我动widget？</p>
+<h2 id="更进一步"><a href="#更进一步" class="headerlink" title="更进一步"></a>更进一步</h2><p>利用AOP对Element unmount 进行hook</p>
+<h3 id="动态性"><a href="#动态性" class="headerlink" title="动态性"></a><strong>动态性</strong></h3><p><strong>iOS</strong></p>
+<p>Objective-C与生俱来的动态性—Runtime。很容易进行AOP和方法替换</p>
+<p>基于语言层面上的特性，业务上我们可以全埋点，越界保护，增加变量，甚至“热更新”等</p>
+<p><strong>Flutter</strong></p>
+<p><img src="/images/Flutter%E7%9A%84%E4%B8%80%E4%BA%9B%E6%8E%A2%E7%B4%A22/Untitled%201.png" alt="iOS%E5%BC%80%E5%8F%91%E5%88%B0Flutter%E5%BC%80%E5%8F%91%E7%9A%84%E6%91%B8%E7%B4%A2%20e03e8f81c9d045c49eac8ecb8f1152c9/Untitled%201.png"></p>
+<p>Dart本身是支持反射特性，具有动态性。然而Flutter禁止了</p>
+<blockquote>
+<p>Flutter的反射比较弱，只能用来做一些Introspect和Invoke，目前不具备Objective-C那么强的动态能力。 据我们了解，Flutter禁止反射最重要的原因不是因为包大小，而是为了代码的可预测性。实际上即便打开mirror支持，tree-shaking的逻辑也是work的。 目前我们对于json&lt;-&gt;model这种采用的还是代码生成的方式。 —— 来自某乎</p>
+</blockquote>
+<h3 id="AspectD"><a href="#AspectD" class="headerlink" title="AspectD"></a>AspectD</h3><p>AOP框架，支持对方法的执行前后插入代码。也支持在指定行插入代码</p>
+<blockquote>
+<p>AspectD is an AOP(aspect oriented programming) framework for dart. Like other traditional aop framework, AspectD provides call&amp;execute grammar. Besides, as we can’t use dart:mirrors in flutter, AspectD also provides a way named inject enhancing the dart code manipulation.</p>
+</blockquote>
+<p>操作dart编译后的AST文件，在指定地方插入hook的代码</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span>()</span><br><span class="line"><span class="meta">@pragma</span>(<span class="string">&quot;vm:entry-point&quot;</span>)</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RegularExecuteDemo</span> </span>&#123;</span><br><span class="line">  <span class="meta">@pragma</span>(<span class="string">&quot;vm:entry-point&quot;</span>)</span><br><span class="line">  RegularExecuteDemo();</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Execute</span>(<span class="string">&quot;package:flutter/src/widgets/framework.dart&quot;</span>, <span class="string">&quot;Element&quot;</span>, <span class="string">&quot;-unmount&quot;</span>)</span><br><span class="line">  <span class="meta">@pragma</span>(<span class="string">&quot;vm:entry-point&quot;</span>)</span><br><span class="line">  <span class="built_in">dynamic</span> hookInvokeCallback(PointCut pointcut) &#123;</span><br><span class="line">    ElementHook().willUnmount(pointcut.target);</span><br><span class="line">    <span class="keyword">final</span> <span class="built_in">dynamic</span> obj = pointcut.proceed();</span><br><span class="line">    <span class="keyword">return</span> obj;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>AspectD会修改flutte源码。将上面hook代码插入到工程指定的文件代码中</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// <span class="markdown">工程代码添加对某个element的监听。</span></span></span><br><span class="line"><span class="keyword">static</span> hook(</span><br><span class="line">      &#123;<span class="built_in">Element</span> element,</span><br><span class="line">      ValueChanged&lt;Tuple2&lt;<span class="built_in">Element</span>, ElementHookState&gt;&gt; callback,</span><br><span class="line">      <span class="built_in">int</span> count = <span class="number">-1</span>,</span><br><span class="line">      ElementHookState hookState = ElementHookState.all&#125;) &#123;</span><br><span class="line">    ElementHook()._list.add(Tuple4(element, callback, count, hookState));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// <span class="markdown">aspectD中hook到element unmount</span></span></span><br><span class="line">willUnmount(<span class="built_in">Element</span> element) &#123;</span><br><span class="line">    <span class="built_in">List</span> willRemoved = [];</span><br><span class="line"></span><br><span class="line">    _list.where((item) =&gt; item.item1 == element).forEach((item) &#123;</span><br><span class="line">      <span class="keyword">if</span> (item.item4 == ElementHookState.unmount || item.item4 == ElementHookState.all) &#123;</span><br><span class="line">        item.item2(Tuple2(element, ElementHookState.unmount));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (item.item3 == <span class="number">1</span>) &#123;</span><br><span class="line">        willRemoved.add(item);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    _list.removeWhere((item) =&gt; willRemoved.contains(item));</span><br><span class="line"></span><br><span class="line">    _list.where((item) =&gt; item.item1 == <span class="keyword">null</span>).forEach((item) &#123;</span><br><span class="line">      item.item2(Tuple2(element, ElementHookState.unmount));</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>完整的无需手动移除的订阅</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">eventBus.<span class="keyword">on</span>&lt;EventFn&gt;().safeListen(<span class="keyword">this</span>, (event) &#123;</span><br><span class="line">     <span class="built_in">print</span>(event);</span><br><span class="line"> &#125;);</span><br></pre></td></tr></table></figure>
+<p><img src="/images/Flutter%E7%9A%84%E4%B8%80%E4%BA%9B%E6%8E%A2%E7%B4%A22/D9A5146BFA8FE872EB61FACF5C66853D.gif" alt="iOS%E5%BC%80%E5%8F%91%E5%88%B0Flutter%E5%BC%80%E5%8F%91%E7%9A%84%E6%91%B8%E7%B4%A2%20e03e8f81c9d045c49eac8ecb8f1152c9/D9A5146BFA8FE872EB61FACF5C66853D.gif"></p>
+<p>看代码</p>
+<p><img src="/images/Flutter%E7%9A%84%E4%B8%80%E4%BA%9B%E6%8E%A2%E7%B4%A22/Untitled%202.png" alt="iOS%E5%BC%80%E5%8F%91%E5%88%B0Flutter%E5%BC%80%E5%8F%91%E7%9A%84%E6%91%B8%E7%B4%A2%20e03e8f81c9d045c49eac8ecb8f1152c9/Untitled%202.png"></p>
+<ol>
+<li>stream_extension.dart</li>
+</ol>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extension</span> Safe <span class="keyword">on</span> Stream &#123;</span><br><span class="line">  safeListen&lt;T&gt;(State state, <span class="keyword">void</span> onData(T event)) &#123;</span><br><span class="line">    state.subscribe = listen(onData);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>state_extension.dart</li>
+</ol>
+<p>给State动态添加subscribes变量</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extension</span> Asociate <span class="keyword">on</span> State &#123;</span><br><span class="line">  <span class="built_in">List</span>&lt;StreamSubscription&gt; <span class="keyword">get</span> subscribes =&gt; AsociateCenter().getsetAsociateValue(state: <span class="keyword">this</span>, key: <span class="string">&quot;subscribes&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">set</span> subscribe(StreamSubscription value) &#123;</span><br><span class="line">    <span class="built_in">List</span>&lt;StreamSubscription&gt; cachedSubscribes = subscribes ?? [];</span><br><span class="line">    cachedSubscribes.add(value);</span><br><span class="line">    AsociateCenter().setAsociate(state: <span class="keyword">this</span>, key: <span class="string">&quot;subscribes&quot;</span>, value: cachedSubscribes);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.asociate_center.dart</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">AsociateCenter._internal() &#123;</span><br><span class="line">   ElementHook.hook(callback: (tuple) &#123;</span><br><span class="line">     elementStateUpdate(element: tuple.item1, state: tuple.item2);</span><br><span class="line">   &#125;);</span><br><span class="line"> &#125;</span><br><span class="line"><span class="built_in">Map</span>&lt;<span class="built_in">int</span>, <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">dynamic</span>&gt;&gt; _asociateCenterMap = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"> elementStateUpdate(&#123;<span class="built_in">Element</span> element, ElementHookState state&#125;) &#123;</span><br><span class="line">   <span class="keyword">if</span> (state != ElementHookState.unmount || element <span class="keyword">is</span>! StatefulElement) &#123;</span><br><span class="line">     <span class="keyword">return</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/// <span class="markdown">cancel掉StatefulElement.State中的subscription</span></span></span><br><span class="line">   (element <span class="keyword">as</span> StatefulElement).state.subscribes?.forEach((element) &#123;</span><br><span class="line">     element.cancel();</span><br><span class="line">   &#125;);</span><br><span class="line"></span><br><span class="line">   <span class="comment">/// <span class="markdown">移除StatefulElement.State中绑定的属性</span></span></span><br><span class="line">   _asociateCenterMap.remove((element <span class="keyword">as</span> StatefulElement).state.hashCode);</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> setAsociate(&#123;State state, <span class="built_in">dynamic</span> value, <span class="built_in">String</span> key&#125;) &#123;</span><br><span class="line">   <span class="built_in">int</span> hashState = state.hashCode;</span><br><span class="line">   <span class="keyword">if</span> (_asociateCenterMap.containsKey(hashState)) &#123;</span><br><span class="line">     _asociateCenterMap[hashState][key] = value;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">dynamic</span>&gt; map = &#123;&#125;;</span><br><span class="line">     map[key] = value;</span><br><span class="line">     _asociateCenterMap[hashState] = map;</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="built_in">dynamic</span> getsetAsociateValue(&#123;State state, <span class="built_in">String</span> key&#125;) &#123;</span><br><span class="line">   <span class="built_in">int</span> hashState = state.hashCode;</span><br><span class="line">   <span class="keyword">if</span> (_asociateCenterMap.containsKey(hashState)) &#123;</span><br><span class="line">     <span class="keyword">return</span> _asociateCenterMap[hashState][key];</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p><img src="/images/Flutter%E7%9A%84%E4%B8%80%E4%BA%9B%E6%8E%A2%E7%B4%A22/Untitled%203.png" alt="iOS%E5%BC%80%E5%8F%91%E5%88%B0Flutter%E5%BC%80%E5%8F%91%E7%9A%84%E6%91%B8%E7%B4%A2%20e03e8f81c9d045c49eac8ecb8f1152c9/Untitled%203.png"></p>
+<ol>
+<li>“懒”是第一技术生产</li>
+</ol>
+<p>为了懒得心安，我们会去寻找更便捷，更安全的解决方案。探索的过程能拓展知识面和技术深度。</p>
+<ol>
+<li>AspectD还没找到支持hook范型方法的方式，与作者沟通当中。</li>
+<li>AspectD应该能让在底层更好的支撑业务层埋点的便捷性。</li>
+</ol>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                </div>
+                                <div class="post-date">
+                                    2021-07-26
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>
